@@ -49,11 +49,14 @@ export function stringify(
     addSpace();
   };
 
-  const addValue = (value: any, isLast: boolean) => {
+  const addValue = (value: any) => {
     if (typeof value === 'object' || value === null || value === undefined) zon += stringify(value);
+    else if (typeof value === 'string' && value.length === 1) zon += `'${value}'`;
     else zon += `${JSON.stringify(value)}`;
+  };
 
-    if (!isLast) zon += ',';
+  const addComma = () => {
+    zon += ',';
   };
 
   // Handle primitive values
@@ -67,15 +70,28 @@ export function stringify(
         const entries = Object.entries(value);
         const entriesLength = entries.length;
         const isArray = Array.isArray(value);
+        let added = 0;
+
         entries.forEach(([key, value], index) => {
-          if (!isArray) addKey(key);
-          addValue(value, index === entriesLength - 1);
+          const isUndefined = value === undefined;
+          
+          const shouldAddKey = !isArray && !isUndefined;
+          const shouldAddValue = !isUndefined;
+          if (shouldAddKey || shouldAddValue) added++;
+          const isStartOfObject = added === 1;
+          const shouldAddComma = !isStartOfObject && (shouldAddValue || shouldAddKey);
+
+          if (shouldAddComma) addComma();
+          if (shouldAddKey) addKey(key);
+          if (shouldAddValue) addValue(value);
+
         });
+
         endObject();
       }
       break;
     case 'undefined':
-      zon += 'undefined';
+      zon += '';
       break;
     case 'boolean':
       zon += value ? 'true' : 'false';
@@ -84,7 +100,7 @@ export function stringify(
       zon += `${value}`;
       break;
     case 'string':
-      zon += `"${value}"`;
+      zon += value.length === 1 ? `'${value}'` : `"${value}"`;
       break;
     default:
       zon += value;
