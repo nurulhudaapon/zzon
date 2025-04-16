@@ -1,4 +1,9 @@
-# zzon - Zig ZON
+# Zig ZON › zzon 
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/zzon"><img alt="npm" src="https://img.shields.io/npm/v/zzon.svg?style=flat-square" /></a>
+  <a href="https://github.com/nurulhudaapon/zzon/actions/workflows/release.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/nurulhudaapon/zzon/release.yml?style=flat-square&branch=main" /></a>
+</p>
 
 A fast, spec compliant, ZON parser and serializer for JavaScript.
 
