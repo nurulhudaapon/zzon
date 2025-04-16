@@ -1,7 +1,7 @@
 # Zig ZON › zzon
 
 <p align="center">
- <img alt="Build status" src="./asset/zzon.png" />
+ <img alt="zzon logo" src="https://raw.githubusercontent.com/nurulhudaapon/zzon/refs/heads/main/asset/zzon.png" width="350" />
 </p>
 
 <p align="center">
