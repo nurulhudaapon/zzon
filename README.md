@@ -19,6 +19,7 @@ npm install zzon
 
 ## Usage
 
+#### Stringify
 ```ts
 import { ZON } from 'zzon';
 
@@ -30,5 +31,13 @@ const zon = ZON.stringify({
   e: null,
   f: undefined,
 });
-console.log(zon); // .{a=1,b="a",c=true,d=false,e=null,f=undefined}
+console.log({ zon }); // .{.a=1,.b='a',.c=true,.d=false,.e=null}
+```
+
+#### Parse
+```ts
+import { ZON } from 'zzon';
+
+const json = ZON.parse(`.{.a=1,.b='a',.c=true,.d=false,.e=null}`);
+console.log({ json }); // {"a":1,"b":"a","c":true,"d":false,"e":null}
 ```
