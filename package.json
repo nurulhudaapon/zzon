@@ -1,6 +1,6 @@
 {
   "name": "zzon",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "private": true,
   "description": "A fast, spec compliant, ZON parser and serializer for JavaScript.",
   "main": "src/index.ts",
@@ -9,7 +9,8 @@
     "test": "bun test",
     "build": "bun run script/build.ts",
     "publish": "bun run build && cd dist && bun publish",
-    "fmt": "prettier --write ."
+    "fmt": "prettier --write .",
+    "check": "tsc"
   },
   "devDependencies": {
     "@types/bun": "latest",

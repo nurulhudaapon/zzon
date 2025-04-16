@@ -18,7 +18,7 @@ describe('stringify', () => {
 
   it('object', () => {
     equal(
-      { a: 1, b: 'a', bb: "ab", c: true, d: false, e: null, f: undefined },
+      { a: 1, b: 'a', bb: 'ab', c: true, d: false, e: null, f: undefined },
       `.{.a=1,.b='a',.bb="ab",.c=true,.d=false,.e=null}`,
     );
   });
@@ -30,7 +30,6 @@ describe('stringify', () => {
   it('nested object', () => {
     equal({ a: { b: 1, c: 'a' } }, `.{.a=.{.b=1,.c='a'}}`);
   });
-
 });
 
 describe('⚡️ stringify', () => {
@@ -51,7 +50,6 @@ describe('⚡️ stringify', () => {
       ZON.stringify(largeArray);
     }
     const end = performance.now();
-
 
     const avgTime = (end - start) / iterations;
     // console.log(`Average time per stringify: ${avgTime} milliseconds`);

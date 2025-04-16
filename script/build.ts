@@ -30,37 +30,36 @@ async function main() {
     // Check if tsconfig.json exists in the package directory
     const tsconfigPath = join(pkgDir, 'tsconfig.json');
 
+    // Create a temporary tsconfig for this package
+    const tempTsConfigPath = join(pkgDir, 'temp-tsconfig.json');
+    const tsConfig = {
+      compilerOptions: {
+        target: 'ES2020',
+        module: 'CommonJS',
+        lib: ['ES2020'],
+        strict: true,
+        esModuleInterop: true,
+        skipLibCheck: true,
+        forceConsistentCasingInFileNames: true,
+        moduleResolution: 'node',
+        resolveJsonModule: true,
+        rootDir: './src',
+        outDir: pkgDistDir,
+        declaration: true,
+        sourceMap: true,
+        emitDeclarationOnly: true,
+      },
+      exclude: ['node_modules', 'dist', 'test'],
+      include: ['./src/index.ts'],
+    };
 
-      // Create a temporary tsconfig for this package
-      const tempTsConfigPath = join(pkgDir, 'temp-tsconfig.json');
-      const tsConfig = {
-        compilerOptions: {
-          target: 'ES2020',
-          module: 'CommonJS',
-          lib: ['ES2020'],
-          strict: true,
-          esModuleInterop: true,
-          skipLibCheck: true,
-          forceConsistentCasingInFileNames: true,
-          moduleResolution: 'node',
-          resolveJsonModule: true,
-          rootDir: './src',
-          outDir: pkgDistDir,
-          declaration: true,
-          sourceMap: true,
-          emitDeclarationOnly: true,
-        },
-        exclude: ['node_modules', 'dist', 'test'],
-        include: ['./src/**/*.ts'],
-      };
+    writeFileSync(tempTsConfigPath, JSON.stringify(tsConfig, null, 2));
 
-      writeFileSync(tempTsConfigPath, JSON.stringify(tsConfig, null, 2));
+    // Use the temporary tsconfig and run tsc directly in the package directory
+    await $`cd ${pkgDir} && tsc --project ${tempTsConfigPath}`;
 
-      // Use the temporary tsconfig and run tsc directly in the package directory
-      await $`cd ${pkgDir} && tsc --project ${tempTsConfigPath}`;
-
-      // Clean up temporary tsconfig
-      await $`rm ${tempTsConfigPath}`;
+    // Clean up temporary tsconfig
+    await $`rm ${tempTsConfigPath}`;
   } catch (error) {
     console.error(`\x1b[31m❌ ${pkgName} - Error: Failed to generate type declarations: ${error}\x1b[0m`);
   }

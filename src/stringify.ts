@@ -6,7 +6,9 @@
  */
 export function stringify(
   value: any,
+  /** @deprecated Support is not yet implemented. */
   replacer?: (this: any, key: string, value: any) => any,
+  /**  @deprecated Full support is not yet implemented. */
   space?: string | number,
 ): string;
 /**
@@ -15,7 +17,14 @@ export function stringify(
  * @param replacer An array of strings and numbers that acts as an approved list for selecting the object properties that will be stringified.
  * @param space Adds indentation, white space, and line break characters to the return-value ZON text to make it easier to read.
  */
-export function stringify(value: any, replacer?: (number | string)[] | null, space?: string | number): string;
+export function stringify(
+  value: any,
+  /** @deprecated Support is not yet implemented. */
+  replacer?: (number | string)[] | null,
+
+  /**  @deprecated Full support is not yet implemented. */
+  space?: string | number,
+): string;
 export function stringify(
   value: any,
   replacer?: ((number | string)[] | null) | ((this: any, key: string, value: any) => any),
@@ -74,7 +83,7 @@ export function stringify(
 
         entries.forEach(([key, value], index) => {
           const isUndefined = value === undefined;
-          
+
           const shouldAddKey = !isArray && !isUndefined;
           const shouldAddValue = !isUndefined;
           if (shouldAddKey || shouldAddValue) added++;
@@ -84,7 +93,6 @@ export function stringify(
           if (shouldAddComma) addComma();
           if (shouldAddKey) addKey(key);
           if (shouldAddValue) addValue(value);
-
         });
 
         endObject();

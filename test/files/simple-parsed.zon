@@ -1,0 +1,1 @@
+.{.name="test",.value=123456,.nested=.{.flag=true,.list=.{1,2,3},.empty_struct=.{}},.array_like=.{'a','b','c'}}

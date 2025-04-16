@@ -1,4 +1,4 @@
-# Zig ZON › zzon 
+# Zig ZON › zzon
 
 <p align="center">
   <a href="https://www.npmjs.com/package/zzon"><img alt="npm" src="https://img.shields.io/npm/v/zzon.svg?style=flat-square" /></a>
@@ -20,6 +20,7 @@ npm install zzon
 ## Usage
 
 #### Stringify
+
 ```ts
 import { ZON } from 'zzon';
 
@@ -35,6 +36,7 @@ console.log({ zon }); // .{.a=1,.b='a',.c=true,.d=false,.e=null}
 ```
 
 #### Parse
+
 ```ts
 import { ZON } from 'zzon';
 
