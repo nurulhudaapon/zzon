@@ -18,6 +18,19 @@ const zonString = `
 }
 `;
 
+const zsonStringWithArray = `
+.{
+  .array = .{1, 2, 3},
+  .obj_array = .{
+    .{
+      .name = "test",
+      .value = 123_456,
+    },
+    
+  }
+}
+`;
+
 describe('parse', () => {
   const parsed = ZON.parse(zonString);
   const expectedObject = {
@@ -26,7 +39,7 @@ describe('parse', () => {
     nested: {
       flag: true,
       list: [1, 2, 3],
-      empty_struct: {},
+      empty_struct: [],
     },
     array_like: ['a', 'b', 'c'],
   };
@@ -35,12 +48,209 @@ describe('parse', () => {
     expect(parsed).toEqual(expectedObject);
   });
 
+  it('should parse the zson string with array', () => {
+    const parsed = ZON.parse(zsonStringWithArray);
+    expect(parsed).toEqual({ array: [1, 2, 3], obj_array: [{ name: 'test', value: 123456 }] });
+  });
+
+
   const simpleValueZon = `"a simple string"`;
   expect(ZON.parse(simpleValueZon)).toBe('a simple string');
 
   const arrayZon = `.{10, false, "hello"}`;
   const parsedArray = ZON.parse(arrayZon);
   expect(parsedArray).toEqual([10, false, 'hello']);
+
+  it('should parse all primitive types', () => {
+    const primitiveZon = `
+.{
+  .string = "hello world",
+  .single_char = 'a',
+  .number = 123_456,
+  .float = 123.456,
+  .boolean_true = true,
+  .boolean_false = false,
+  .null = null,
+  .empty_string = "",
+  .zero = 0,
+  .negative = -123,
+  .scientific = 1.23e4
+}`;
+
+    const expected = {
+      string: "hello world",
+      single_char: "a",
+      number: 123456,
+      float: 123.456,
+      boolean_true: true,
+      boolean_false: false,
+      null: null,
+      empty_string: "",
+      zero: 0,
+      negative: -123,
+      scientific: 1.23e4
+    };
+
+    expect(ZON.parse(primitiveZon)).toEqual(expected);
+  });
+
+  it('should parse nested structures', () => {
+    const nestedZon = `
+.{
+  .outer = .{
+    .middle = .{
+      .inner = .{
+        .value = "deeply nested"
+      }
+    },
+    .array = .{
+      .{
+        .name = "first"
+      },
+      .{
+        .name = "second"
+      }
+    }
+  },
+  .mixed = .{
+    .numbers = .{1, 2, 3},
+    .strings = .{"a", "b", "c"},
+    .booleans = .{true, false},
+    .mixed = .{1, "two", true, null}
+  }
+}`;
+
+    const expected = {
+      outer: {
+        middle: {
+          inner: {
+            value: "deeply nested"
+          }
+        },
+        array: [
+          { name: "first" },
+          { name: "second" }
+        ]
+      },
+      mixed: {
+        numbers: [1, 2, 3],
+        strings: ["a", "b", "c"],
+        booleans: [true, false],
+        mixed: [1, "two", true, null]
+      }
+    };
+
+    expect(ZON.parse(nestedZon)).toEqual(expected);
+  });
+
+  it('should parse empty structures as arrays', () => {
+    const emptyZon = `
+.{
+  .empty_object = .{},
+  .empty_array = .{},
+  .nested_empty = .{
+    .empty = .{},
+    .array = .{}
+  }
+}`;
+
+    const expected = {
+      empty_object: [],
+      empty_array: [],
+      nested_empty: {
+        empty: [],
+        array: []
+      }
+    };
+
+    expect(ZON.parse(emptyZon)).toEqual(expected);
+  });
+
+  it('should parse with comments', () => {
+    const commentZon = `
+.{
+  // This is a line comment
+  .name = "test", // inline comment
+  .value = 123,
+  .nested = .{ // nested comment
+    .flag = true, // another comment
+  }
+}`;
+
+    const expected = {
+      name: "test",
+      value: 123,
+      nested: {
+        flag: true
+      }
+    };
+
+    expect(ZON.parse(commentZon)).toEqual(expected);
+  });
+
+  it('should parse with trailing commas', () => {
+    const trailingCommaZon = `
+.{
+  .array = .{1, 2, 3,},
+  .object = .{
+    .a = 1,
+    .b = 2,
+    .c = 3,
+  },
+  .nested = .{
+    .array = .{1, 2, 3,},
+    .object = .{
+      .a = 1,
+      .b = 2,
+      .c = 3,
+    },
+  },
+}`;
+
+    const expected = {
+      array: [1, 2, 3],
+      object: {
+        a: 1,
+        b: 2,
+        c: 3
+      },
+      nested: {
+        array: [1, 2, 3],
+        object: {
+          a: 1,
+          b: 2,
+          c: 3
+        }
+      }
+    };
+
+    expect(ZON.parse(trailingCommaZon)).toEqual(expected);
+  });
+
+  it('should parse with whitespace variations', () => {
+    const whitespaceZon = `
+.{
+  .compact = .{1,2,3},
+  .spaced = .{ 1 , 2 , 3 },
+  .newlines = .{
+    1
+    ,
+    2
+    ,
+    3
+  },
+  .mixed = .{ 1,2 , 3 }
+}`;
+
+    const expected = {
+      compact: [1, 2, 3],
+      spaced: [1, 2, 3],
+      newlines: [1, 2, 3],
+      mixed: [1, 2, 3]
+    };
+
+    expect(ZON.parse(whitespaceZon)).toEqual(expected);
+  });
 });
 
 describe('⚡️ parse', () => {

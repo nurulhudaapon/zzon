@@ -1,6 +1,5 @@
 {
   "name": "zzon",
-  "version": "1.0.0",
   "private": true,
   "description": "A fast, spec compliant, ZON parser and serializer for JavaScript.",
   "main": "src/index.ts",
@@ -11,6 +10,20 @@
     "publish": "bun run build && cd dist && bun publish",
     "fmt": "prettier --write .",
     "check": "tsc"
+  },
+  "release": {
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      [
+        "@semantic-release/npm",
+        {
+          "npmPublish": true,
+          "pkgRoot": "dist"
+        }
+      ],
+      "@semantic-release/github"
+    ]
   },
   "devDependencies": {
     "@types/bun": "latest",

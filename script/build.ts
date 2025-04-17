@@ -78,6 +78,7 @@ async function main() {
   pkgJson.devDependencies = undefined;
   pkgJson.peerDependencies = undefined;
   pkgJson.private = undefined;
+  pkgJson.release = undefined;
 
   // Write updated package.json to dist
   const distPkgJsonPath = join(pkgDistDir, 'package.json');

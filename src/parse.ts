@@ -81,6 +81,15 @@ export function parse(source: string, reviver?: (this: any, key: string, value: 
     return consumedToken;
   }
 
+  // Type guard functions for token checking
+  function isComma(token: Token | null): token is Token & { tag: typeof TokenTag.Comma } {
+    return token?.tag === TokenTag.Comma;
+  }
+
+  function isRBrace(token: Token | null): token is Token & { tag: typeof TokenTag.RBrace } {
+    return token?.tag === TokenTag.RBrace;
+  }
+
   // --- Recursive Parsing Logic ---
 
   // Parses any ZON value (struct, string, number, boolean)
@@ -90,13 +99,13 @@ export function parse(source: string, reviver?: (this: any, key: string, value: 
     switch (currentState.currentToken.tag) {
       case TokenTag.Period:
         // Check if it's the start of a struct literal '.{'
-        const nextToken = peek(currentState);
-        if (nextToken.tag === TokenTag.LBrace) {
+        const nextTokenForPeriod = peek(currentState);
+        if (nextTokenForPeriod.tag === TokenTag.LBrace) {
           consume(currentState, TokenTag.Period); // Consume '.'
           return parseStructLiteral(currentState);
         } else {
           throw new Error(
-            `Unexpected token after '.': ${nextToken.tag} at index ${nextToken.loc.start}. Expected '{' for struct literal.`,
+            `Unexpected token after '.': ${nextTokenForPeriod.tag} at index ${nextTokenForPeriod.loc.start}. Expected '{' for struct literal.`,
           );
         }
 
@@ -109,6 +118,12 @@ export function parse(source: string, reviver?: (this: any, key: string, value: 
         // NOTE: Does not handle escape sequences within the string (e.g., \n, \").
         // A production parser would need unescaping logic here or in the tokenizer.
         return unquotedValue;
+
+      case TokenTag.CharLiteral:
+        const charValue = currentState.currentToken.value;
+        consume(currentState);
+        // Remove surrounding single quotes
+        return charValue.slice(1, -1);
 
       case TokenTag.NumberLiteral:
         const numStr = currentState.currentToken.value;
@@ -123,6 +138,26 @@ export function parse(source: string, reviver?: (this: any, key: string, value: 
         }
         return parsedNum;
 
+      case TokenTag.Minus:
+        // Handle negative numbers
+        consume(currentState, TokenTag.Minus);
+        const nextTokenForMinus = currentState.currentToken;
+        if (nextTokenForMinus?.tag === TokenTag.NumberLiteral) {
+          const numStr = nextTokenForMinus.value;
+          consume(currentState);
+          const cleanedNumStr = numStr.replace(/_/g, '');
+          const parsedNum = Number(cleanedNumStr);
+          if (isNaN(parsedNum)) {
+            throw new Error(
+              `Invalid number literal format: "-${numStr}" at index ${nextTokenForMinus.loc.start}`,
+            );
+          }
+          return -parsedNum;
+        }
+        throw new Error(
+          `Expected number after '-' at index ${currentState.currentToken?.loc.start ?? 'unknown'}`,
+        );
+
       case TokenTag.Identifier:
         const identValue = currentState.currentToken.value;
         if (identValue === 'true') {
@@ -133,8 +168,10 @@ export function parse(source: string, reviver?: (this: any, key: string, value: 
           consume(currentState);
           return false;
         }
-        // Zig's `null` keyword could be handled here if needed:
-        // if (identValue === 'null') { consume(currentState); return null; }
+        if (identValue === 'null') {
+          consume(currentState);
+          return null;
+        }
         throw new Error(
           `Unexpected identifier '${identValue}' found as value at index ${currentState.currentToken.loc.start}`,
         );
@@ -151,52 +188,83 @@ export function parse(source: string, reviver?: (this: any, key: string, value: 
     consume(currentState, TokenTag.LBrace); // Consume '{'
 
     let result: any = undefined; // Use undefined to detect type (object/array) on first element
+    let isArray = false;
 
-    while (currentState.currentToken && currentState.currentToken.tag !== TokenTag.RBrace) {
+    // Check if this is an empty struct
+    if (currentState.currentToken?.tag === TokenTag.RBrace) {
+      consume(currentState, TokenTag.RBrace);
+      return []; // Empty struct is treated as array by default
+    }
+
+    while (currentState.currentToken && !isRBrace(currentState.currentToken)) {
       if (currentState.currentToken.tag === TokenTag.Period) {
-        // --- Object Field ---
-        if (result === undefined) result = {};
-        else if (Array.isArray(result))
-          throw new Error(
-            `Expected array element but found object field starting with '.' at index ${currentState.currentToken.loc.start}`,
-          );
+        // Check if this is a field in an object or an object in an array
+        const nextToken = peek(currentState);
+        if (nextToken.tag === TokenTag.Identifier) {
+          // --- Object Field ---
+          if (result === undefined) {
+            result = {};
+            isArray = false;
+          } else if (isArray) {
+            throw new Error(
+              `Expected array element but found object field starting with '.' at index ${currentState.currentToken.loc.start}`,
+            );
+          }
 
-        consume(currentState, TokenTag.Period); // Consume '.'
-        const fieldNameToken = consume(currentState, TokenTag.Identifier);
-        consume(currentState, TokenTag.Equal); // Consume '='
-        result[fieldNameToken.value] = parseValue(currentState);
+          consume(currentState, TokenTag.Period); // Consume '.'
+          const fieldNameToken = consume(currentState, TokenTag.Identifier);
+          consume(currentState, TokenTag.Equal); // Consume '='
+          result[fieldNameToken.value] = parseValue(currentState);
+        } else if (nextToken.tag === TokenTag.LBrace) {
+          // --- Object in Array ---
+          if (result === undefined) {
+            result = [];
+            isArray = true;
+          } else if (!isArray) {
+            throw new Error(
+              `Expected object field (starting with '.') but found array element at index ${currentState.currentToken.loc.start}`,
+            );
+          }
+
+          consume(currentState, TokenTag.Period); // Consume '.'
+          result.push(parseStructLiteral(currentState));
+        } else {
+          throw new Error(
+            `Unexpected token after '.': ${nextToken.tag} at index ${nextToken.loc.start}`,
+          );
+        }
       } else {
         // --- Array Element ---
-        if (result === undefined) result = [];
-        else if (!Array.isArray(result))
+        if (result === undefined) {
+          result = [];
+          isArray = true;
+        } else if (!isArray) {
           throw new Error(
             `Expected object field (starting with '.') but found array element at index ${currentState.currentToken.loc.start}`,
           );
+        }
 
         result.push(parseValue(currentState));
       }
 
       // After a field/element, expect a comma or the closing brace
-      if (currentState.currentToken?.tag === TokenTag.Comma) {
+      if (isComma(currentState.currentToken)) {
         consume(currentState); // Consume ','
         // Handle trailing comma: If next is '}', loop condition breaks anyway
-        // @ts-expect-error - This is a valid check
-
-        if (currentState.currentToken?.tag === TokenTag.RBrace) {
+        if (isRBrace(currentState.currentToken)) {
           break;
         }
-        // @ts-expect-error - This is a valid check
-      } else if (currentState.currentToken?.tag !== TokenTag.RBrace) {
+      } else if (!isRBrace(currentState.currentToken)) {
         throw new Error(
-          `Expected ',' or '}' after element/field, but found ${currentState.currentToken?.tag} '${currentState.currentToken?.value}' at index ${currentState.currentToken?.loc.start}`,
+          `Expected ',' or '}' after element/field, but found ${currentState.currentToken.tag} '${currentState.currentToken.value}' at index ${currentState.currentToken.loc.start}`,
         );
       }
     } // End while loop
 
     consume(currentState, TokenTag.RBrace); // Consume '}'
 
-    // Handle empty struct `.{}` -> return empty object by default
-    return result === undefined ? {} : result;
+    // Handle empty struct `.{}` -> return empty array by default
+    return result === undefined ? [] : result;
   }
 
   // --- Start Parsing ---
