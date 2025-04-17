@@ -1543,7 +1543,6 @@ export class Tokenizer {
     return this.buffer.charCodeAt(peekIndex);
   }
 
-  // --- Iterator interface (optional) ---
   public *tokens(): Generator<Token, void, undefined> {
     while (true) {
       const token = this.next();

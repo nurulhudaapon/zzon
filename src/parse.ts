@@ -1,72 +1,60 @@
 import { Tokenizer, type Token, TokenTag } from './zig';
-/**
- * Converts a Zig Object Notation (ZON) string into an object.
- * @param text A valid ZON string.
- * @param reviver A function that transforms the results. This function is called for each member of the object.
- * If a member contains nested objects, the nested objects are transformed before the parent object is.
- */
-export function parse(source: string, reviver?: (this: any, key: string, value: any) => any): any {
-  const tokenizer = new Tokenizer(source);
-  const state: ParserState = {
-    tokenizer: tokenizer,
-    currentToken: null,
-    peekedToken: null,
-  };
 
-  // --- Helper Functions ---
+class ZonParser {
+  #tokenizer: Tokenizer;
+  #currentToken: Token | null;
+  #peekedToken: Token | null;
 
-  function isComment(tag: TokenTag): boolean {
-    // LineComment (`//`) is skipped by the tokenizer's Start state,
-    // so we only need to check for DocComment tokens here.
+  constructor(source: string) {
+    this.#tokenizer = new Tokenizer(source);
+    this.#currentToken = null;
+    this.#peekedToken = null;
+  }
+
+  #isComment(tag: TokenTag): boolean {
     return tag === TokenTag.DocComment || tag === TokenTag.ContainerDocComment;
   }
 
-  // Advance the stream to the next non-comment token
-  function advance(currentState: ParserState): Token {
-    if (currentState.peekedToken) {
-      // Use the peeked token if available
-      currentState.currentToken = currentState.peekedToken;
-      currentState.peekedToken = null; // Clear peek cache
-    } else {
-      // Otherwise, get the next token from the tokenizer
-      do {
-        currentState.currentToken = currentState.tokenizer.next();
-      } while (currentState.currentToken && isComment(currentState.currentToken.tag));
-    }
-
-    if (!currentState.currentToken) {
-      throw new Error('Advanced past EOF unexpectedly.');
-    }
-    return currentState.currentToken;
+  #isTokenTag<T extends TokenTag>(token: Token | null, tag: T): token is Token & { tag: T } {
+    return token?.tag === tag;
   }
 
-  // Look at the next non-comment token without consuming it
-  function peek(currentState: ParserState): Token {
-    if (!currentState.peekedToken) {
-      let nextToken: Token | null = null;
-      // Peek ahead, skipping comments
+  #advance(): Token {
+    if (this.#peekedToken) {
+      this.#currentToken = this.#peekedToken;
+      this.#peekedToken = null;
+    } else {
       do {
-        nextToken = currentState.tokenizer.next(); // Note: This consumes from the tokenizer iterator
-      } while (nextToken && isComment(nextToken.tag));
+        this.#currentToken = this.#tokenizer.next();
+      } while (this.#currentToken && this.#isComment(this.#currentToken.tag));
+    }
+
+    if (!this.#currentToken) {
+      throw new Error('Advanced past EOF unexpectedly.');
+    }
+    return this.#currentToken;
+  }
+
+  #peek(): Token {
+    if (!this.#peekedToken) {
+      let nextToken: Token | null = null;
+      do {
+        nextToken = this.#tokenizer.next();
+      } while (nextToken && this.#isComment(nextToken.tag));
 
       if (!nextToken) {
         throw new Error('Peeked past EOF unexpectedly.');
       }
-      currentState.peekedToken = nextToken;
-      // Important: Since tokenizer.next() was called, the tokenizer's internal state
-      // has advanced. Subsequent calls to tokenizer.next() *inside advance()*
-      // will retrieve tokens *after* the one we just peeked. This is handled
-      // by `advance` using `currentState.peekedToken` first.
+      this.#peekedToken = nextToken;
     }
-    if (!currentState.peekedToken) {
-      throw new Error('Peek failed unexpectedly.'); // Should be unreachable
+    if (!this.#peekedToken) {
+      throw new Error('Peek failed unexpectedly.');
     }
-    return currentState.peekedToken;
+    return this.#peekedToken;
   }
 
-  // Consume the current token, optionally checking its type, and advance
-  function consume(currentState: ParserState, expectedTag?: TokenTag): Token {
-    const consumedToken = currentState.currentToken;
+  #consume(expectedTag?: TokenTag): Token {
+    const consumedToken = this.#currentToken;
     if (!consumedToken) {
       throw new Error(
         `Cannot consume token: stream is at EOF or not initialized. Expected ${expectedTag ?? 'any token'}.`,
@@ -77,219 +65,198 @@ export function parse(source: string, reviver?: (this: any, key: string, value: 
         `Expected token ${expectedTag} but found ${consumedToken.tag} ('${consumedToken.value}') at index ${consumedToken.loc.start}`,
       );
     }
-    advance(currentState);
+    this.#advance();
     return consumedToken;
   }
 
-  // Type guard functions for token checking
-  function isComma(token: Token | null): token is Token & { tag: typeof TokenTag.Comma } {
-    return token?.tag === TokenTag.Comma;
-  }
+  #parseValue(): any {
+    if (!this.#currentToken) throw new Error('Unexpected EOF while parsing value');
 
-  function isRBrace(token: Token | null): token is Token & { tag: typeof TokenTag.RBrace } {
-    return token?.tag === TokenTag.RBrace;
-  }
-
-  // --- Recursive Parsing Logic ---
-
-  // Parses any ZON value (struct, string, number, boolean)
-  function parseValue(currentState: ParserState): any {
-    if (!currentState.currentToken) throw new Error('Unexpected EOF while parsing value');
-
-    switch (currentState.currentToken.tag) {
+    switch (this.#currentToken.tag) {
       case TokenTag.Period:
-        // Check if it's the start of a struct literal '.{'
-        const nextTokenForPeriod = peek(currentState);
+        const nextTokenForPeriod = this.#peek();
         if (nextTokenForPeriod.tag === TokenTag.LBrace) {
-          consume(currentState, TokenTag.Period); // Consume '.'
-          return parseStructLiteral(currentState);
+          this.#consume(TokenTag.Period);
+          return this.#parseStructLiteral();
+        } else if (nextTokenForPeriod.tag === TokenTag.Identifier) {
+          this.#consume(TokenTag.Period);
+          const enumValue = this.#consume(TokenTag.Identifier).value;
+          return `${enumValue}`;
         } else {
           throw new Error(
-            `Unexpected token after '.': ${nextTokenForPeriod.tag} at index ${nextTokenForPeriod.loc.start}. Expected '{' for struct literal.`,
+            `Unexpected token after '.': ${nextTokenForPeriod.tag} at index ${nextTokenForPeriod.loc.start}. Expected '{' for struct literal or identifier for enum value.`,
           );
         }
 
       case TokenTag.StringLiteral:
-        const strValue = currentState.currentToken.value;
-        consume(currentState);
-        // Remove surrounding quotes. Assumes tokenizer includes them.
-        // Handles potential @"..." syntax if tokenizer produces it.
+        const strValue = this.#currentToken.value;
+        this.#consume();
         const unquotedValue = strValue.startsWith('@"') ? strValue.slice(2, -1) : strValue.slice(1, -1);
-        // NOTE: Does not handle escape sequences within the string (e.g., \n, \").
-        // A production parser would need unescaping logic here or in the tokenizer.
         return unquotedValue;
 
       case TokenTag.CharLiteral:
-        const charValue = currentState.currentToken.value;
-        consume(currentState);
-        // Remove surrounding single quotes
+        const charValue = this.#currentToken.value;
+        this.#consume();
         return charValue.slice(1, -1);
 
       case TokenTag.NumberLiteral:
-        const numStr = currentState.currentToken.value;
-        consume(currentState);
-        // Remove Zig's underscores for JS parsing compatibility
+        const numStr = this.#currentToken.value;
+        this.#consume();
         const cleanedNumStr = numStr.replace(/_/g, '');
         const parsedNum = Number(cleanedNumStr);
         if (isNaN(parsedNum)) {
           throw new Error(
-            `Invalid number literal format: "${numStr}" at index ${currentState.currentToken?.loc.start ?? 'unknown'}`,
+            `Invalid number literal format: "${numStr}" at index ${this.#currentToken?.loc.start ?? 'unknown'}`,
           );
         }
         return parsedNum;
 
       case TokenTag.Minus:
-        // Handle negative numbers
-        consume(currentState, TokenTag.Minus);
-        const nextTokenForMinus = currentState.currentToken;
+        this.#consume(TokenTag.Minus);
+        const nextTokenForMinus = this.#currentToken;
         if (nextTokenForMinus?.tag === TokenTag.NumberLiteral) {
           const numStr = nextTokenForMinus.value;
-          consume(currentState);
+          this.#consume();
           const cleanedNumStr = numStr.replace(/_/g, '');
           const parsedNum = Number(cleanedNumStr);
           if (isNaN(parsedNum)) {
-            throw new Error(
-              `Invalid number literal format: "-${numStr}" at index ${nextTokenForMinus.loc.start}`,
-            );
+            throw new Error(`Invalid number literal format: "-${numStr}" at index ${nextTokenForMinus.loc.start}`);
           }
           return -parsedNum;
         }
-        throw new Error(
-          `Expected number after '-' at index ${currentState.currentToken?.loc.start ?? 'unknown'}`,
-        );
+        throw new Error(`Expected number after '-' at index ${this.#currentToken?.loc.start ?? 'unknown'}`);
 
       case TokenTag.Identifier:
-        const identValue = currentState.currentToken.value;
+        const identValue = this.#currentToken.value;
         if (identValue === 'true') {
-          consume(currentState);
+          this.#consume();
           return true;
         }
         if (identValue === 'false') {
-          consume(currentState);
+          this.#consume();
           return false;
         }
         if (identValue === 'null') {
-          consume(currentState);
+          this.#consume();
           return null;
         }
         throw new Error(
-          `Unexpected identifier '${identValue}' found as value at index ${currentState.currentToken.loc.start}`,
+          `Unexpected identifier '${identValue}' found as value at index ${this.#currentToken.loc.start}`,
         );
 
       default:
         throw new Error(
-          `Unexpected token '${currentState.currentToken.value}' (${currentState.currentToken.tag}) when parsing value at index ${currentState.currentToken.loc.start}`,
+          `Unexpected token '${this.#currentToken.value}' (${this.#currentToken.tag}) when parsing value at index ${this.#currentToken.loc.start}`,
         );
     }
   }
 
-  // Parses a ZON struct literal: .{ .field = value, ... } or .{ elem1, elem2, ... }
-  function parseStructLiteral(currentState: ParserState): any {
-    consume(currentState, TokenTag.LBrace); // Consume '{'
+  #parseStructLiteral(): any {
+    this.#consume(TokenTag.LBrace);
 
-    let result: any = undefined; // Use undefined to detect type (object/array) on first element
+    let result: any = undefined;
     let isArray = false;
 
-    // Check if this is an empty struct
-    if (currentState.currentToken?.tag === TokenTag.RBrace) {
-      consume(currentState, TokenTag.RBrace);
-      return []; // Empty struct is treated as array by default
+    if (this.#isTokenTag(this.#currentToken, TokenTag.RBrace)) {
+      this.#consume(TokenTag.RBrace);
+      return [];
     }
 
-    while (currentState.currentToken && !isRBrace(currentState.currentToken)) {
-      if (currentState.currentToken.tag === TokenTag.Period) {
-        // Check if this is a field in an object or an object in an array
-        const nextToken = peek(currentState);
-        if (nextToken.tag === TokenTag.Identifier) {
-          // --- Object Field ---
-          if (result === undefined) {
-            result = {};
-            isArray = false;
-          } else if (isArray) {
-            throw new Error(
-              `Expected array element but found object field starting with '.' at index ${currentState.currentToken.loc.start}`,
-            );
+    while (this.#currentToken && !this.#isTokenTag(this.#currentToken, TokenTag.RBrace)) {
+      if (this.#currentToken.tag === TokenTag.Period) {
+        const nextToken = this.#peek();
+
+        switch (nextToken.tag) {
+          case TokenTag.Identifier: {
+            if (result === undefined) {
+              result = {};
+              isArray = false;
+            } else if (isArray) {
+              throw new Error(
+                `Expected array element but found object field starting with '.' at index ${this.#currentToken.loc.start}`,
+              );
+            }
+
+            this.#consume(TokenTag.Period);
+            const fieldNameToken = this.#consume(TokenTag.Identifier);
+            this.#consume(TokenTag.Equal);
+            result[fieldNameToken.value] = this.#parseValue();
+            break;
           }
 
-          consume(currentState, TokenTag.Period); // Consume '.'
-          const fieldNameToken = consume(currentState, TokenTag.Identifier);
-          consume(currentState, TokenTag.Equal); // Consume '='
-          result[fieldNameToken.value] = parseValue(currentState);
-        } else if (nextToken.tag === TokenTag.LBrace) {
-          // --- Object in Array ---
-          if (result === undefined) {
-            result = [];
-            isArray = true;
-          } else if (!isArray) {
-            throw new Error(
-              `Expected object field (starting with '.') but found array element at index ${currentState.currentToken.loc.start}`,
-            );
+          case TokenTag.LBrace: {
+            if (result === undefined) {
+              result = [];
+              isArray = true;
+            } else if (!isArray) {
+              throw new Error(
+                `Expected object field (starting with '.') but found array element at index ${this.#currentToken.loc.start}`,
+              );
+            }
+
+            this.#consume(TokenTag.Period);
+            result.push(this.#parseStructLiteral());
+            break;
           }
 
-          consume(currentState, TokenTag.Period); // Consume '.'
-          result.push(parseStructLiteral(currentState));
-        } else {
-          throw new Error(
-            `Unexpected token after '.': ${nextToken.tag} at index ${nextToken.loc.start}`,
-          );
+          default:
+            throw new Error(`Unexpected token after '.': ${nextToken.tag} at index ${nextToken.loc.start}`);
         }
       } else {
-        // --- Array Element ---
         if (result === undefined) {
           result = [];
           isArray = true;
         } else if (!isArray) {
           throw new Error(
-            `Expected object field (starting with '.') but found array element at index ${currentState.currentToken.loc.start}`,
+            `Expected object field (starting with '.') but found array element at index ${this.#currentToken.loc.start}`,
           );
         }
 
-        result.push(parseValue(currentState));
+        result.push(this.#parseValue());
       }
 
-      // After a field/element, expect a comma or the closing brace
-      if (isComma(currentState.currentToken)) {
-        consume(currentState); // Consume ','
-        // Handle trailing comma: If next is '}', loop condition breaks anyway
-        if (isRBrace(currentState.currentToken)) {
+      if (this.#isTokenTag(this.#currentToken, TokenTag.Comma)) {
+        this.#consume();
+        if (this.#isTokenTag(this.#currentToken, TokenTag.RBrace)) {
           break;
         }
-      } else if (!isRBrace(currentState.currentToken)) {
+      } else if (!this.#isTokenTag(this.#currentToken, TokenTag.RBrace)) {
         throw new Error(
-          `Expected ',' or '}' after element/field, but found ${currentState.currentToken.tag} '${currentState.currentToken.value}' at index ${currentState.currentToken.loc.start}`,
+          `Expected ',' or '}' after element/field, but found ${this.#currentToken.tag} '${this.#currentToken.value}' at index ${this.#currentToken.loc.start}`,
         );
       }
-    } // End while loop
+    }
 
-    consume(currentState, TokenTag.RBrace); // Consume '}'
-
-    // Handle empty struct `.{}` -> return empty array by default
+    this.#consume(TokenTag.RBrace);
     return result === undefined ? [] : result;
   }
 
-  // --- Start Parsing ---
-  advance(state); // Load the first non-comment token
+  public parse(reviver?: (this: any, key: string, value: any) => any): any {
+    this.#advance();
 
-  if (!state.currentToken || state.currentToken.tag === TokenTag.Eof) {
-    throw new Error('Input ZON string is empty or contains only comments.');
+    if (!this.#currentToken || this.#isTokenTag(this.#currentToken, TokenTag.Eof)) {
+      throw new Error('Input ZON string is empty or contains only comments.');
+    }
+
+    const finalResult = this.#parseValue();
+
+    if (this.#currentToken && !this.#isTokenTag(this.#currentToken, TokenTag.Eof)) {
+      throw new Error(
+        `Parsing finished, but unexpected token remained: ${this.#currentToken.tag} '${this.#currentToken.value}' at index ${this.#currentToken.loc.start}`,
+      );
+    }
+
+    return JSON.parse(JSON.stringify(finalResult), reviver);
   }
-
-  const finalResult = parseValue(state);
-
-  // Ensure all tokens (except EOF) were consumed
-  // @ts-expect-error - This is a valid check
-  if (state.currentToken?.tag !== TokenTag.Eof) {
-    throw new Error(
-      `Parsing finished, but unexpected token remained: ${state.currentToken?.tag} '${state.currentToken?.value}' at index ${state.currentToken?.loc.start}`,
-    );
-  }
-
-  return JSON.parse(JSON.stringify(finalResult), reviver);
 }
 
-interface ParserState {
-  tokenizer: Tokenizer;
-  currentToken: Token | null;
-  // Simple lookahead: Store the next token after skipping comments
-  peekedToken: Token | null;
+/**
+ * Converts a Zig Object Notation (ZON) string into an object.
+ * @param text A valid ZON string.
+ * @param reviver A function that transforms the results. This function is called for each member of the object.
+ * If a member contains nested objects, the nested objects are transformed before the parent object is.
+ */
+export function parse(source: string, reviver?: (this: any, key: string, value: any) => any): any {
+  const parser = new ZonParser(source);
+  return parser.parse(reviver);
 }

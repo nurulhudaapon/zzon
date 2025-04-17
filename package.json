@@ -4,6 +4,20 @@
   "description": "A fast, spec compliant, ZON parser and serializer for JavaScript.",
   "main": "src/index.ts",
   "type": "module",
+  "homepage": "https://github.com/nurulhudaapon/zzon",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nurulhudaapon/zzon.git"
+  },
+  "keywords": [
+    "zon",
+    "zig",
+    "json",
+    "parser",
+    "serializer"
+  ],
+  "author": "Nurul Huda Apon <me@nurulhudaapon.com>",
+  "license": "MIT",
   "scripts": {
     "test": "bun test",
     "build": "bun run script/build.ts",

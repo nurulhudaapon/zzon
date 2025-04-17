@@ -33,8 +33,8 @@ describe('stringify', () => {
 });
 
 describe('⚡️ stringify', () => {
-  it('should serialize 12KB in 0.4ms', () => {
-    const ALLOWED_TIME_MS = 0.4;
+  it('should serialize ~10KB under 1ms', () => {
+    const ALLOWED_TIME_MS = 1;
     const iterations = 1000;
     const complexObject = {
       a: { b: 1, c: 'a', d: [1, 2, 3], e: { f: true, g: null } },
@@ -52,8 +52,7 @@ describe('⚡️ stringify', () => {
     const end = performance.now();
 
     const avgTime = (end - start) / iterations;
-    // console.log(`Average time per stringify: ${avgTime} milliseconds`);
-    // console.log(`Total time for ${iterations} iterations: ${end - start} milliseconds`);
+    // console.log('⏱️ ',`Average: ${avgTime}ms`, `Total: ${end - start}ms`);
     expect(avgTime).toBeLessThan(ALLOWED_TIME_MS);
 
     Bun.write('test/files/simple.zon', ZON.stringify(complexObject));

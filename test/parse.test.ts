@@ -31,6 +31,26 @@ const zsonStringWithArray = `
 }
 `;
 
+const zonEnumLiteral = `
+.{
+  .{
+    .kind = .keyword
+  },
+  .{
+    .kind = .word
+  },
+  .{
+    .kind = .sentance
+  },
+  .{
+    .kind = .paragraph
+  },
+  .{
+    .kind = .section
+  },
+}
+`;
+
 describe('parse', () => {
   const parsed = ZON.parse(zonString);
   const expectedObject = {
@@ -52,7 +72,6 @@ describe('parse', () => {
     const parsed = ZON.parse(zsonStringWithArray);
     expect(parsed).toEqual({ array: [1, 2, 3], obj_array: [{ name: 'test', value: 123456 }] });
   });
-
 
   const simpleValueZon = `"a simple string"`;
   expect(ZON.parse(simpleValueZon)).toBe('a simple string');
@@ -78,20 +97,31 @@ describe('parse', () => {
 }`;
 
     const expected = {
-      string: "hello world",
-      single_char: "a",
+      string: 'hello world',
+      single_char: 'a',
       number: 123456,
       float: 123.456,
       boolean_true: true,
       boolean_false: false,
       null: null,
-      empty_string: "",
+      empty_string: '',
       zero: 0,
       negative: -123,
-      scientific: 1.23e4
+      scientific: 1.23e4,
     };
 
     expect(ZON.parse(primitiveZon)).toEqual(expected);
+  });
+
+  it('should parse enum literal', () => {
+    const parsed = ZON.parse(zonEnumLiteral);
+    expect(parsed).toEqual([
+      { kind: 'keyword' },
+      { kind: 'word' },
+      { kind: 'sentance' },
+      { kind: 'paragraph' },
+      { kind: 'section' },
+    ]);
   });
 
   it('should parse nested structures', () => {
@@ -124,20 +154,17 @@ describe('parse', () => {
       outer: {
         middle: {
           inner: {
-            value: "deeply nested"
-          }
+            value: 'deeply nested',
+          },
         },
-        array: [
-          { name: "first" },
-          { name: "second" }
-        ]
+        array: [{ name: 'first' }, { name: 'second' }],
       },
       mixed: {
         numbers: [1, 2, 3],
-        strings: ["a", "b", "c"],
+        strings: ['a', 'b', 'c'],
         booleans: [true, false],
-        mixed: [1, "two", true, null]
-      }
+        mixed: [1, 'two', true, null],
+      },
     };
 
     expect(ZON.parse(nestedZon)).toEqual(expected);
@@ -159,8 +186,8 @@ describe('parse', () => {
       empty_array: [],
       nested_empty: {
         empty: [],
-        array: []
-      }
+        array: [],
+      },
     };
 
     expect(ZON.parse(emptyZon)).toEqual(expected);
@@ -178,11 +205,11 @@ describe('parse', () => {
 }`;
 
     const expected = {
-      name: "test",
+      name: 'test',
       value: 123,
       nested: {
-        flag: true
-      }
+        flag: true,
+      },
     };
 
     expect(ZON.parse(commentZon)).toEqual(expected);
@@ -212,16 +239,16 @@ describe('parse', () => {
       object: {
         a: 1,
         b: 2,
-        c: 3
+        c: 3,
       },
       nested: {
         array: [1, 2, 3],
         object: {
           a: 1,
           b: 2,
-          c: 3
-        }
-      }
+          c: 3,
+        },
+      },
     };
 
     expect(ZON.parse(trailingCommaZon)).toEqual(expected);
@@ -246,7 +273,7 @@ describe('parse', () => {
       compact: [1, 2, 3],
       spaced: [1, 2, 3],
       newlines: [1, 2, 3],
-      mixed: [1, 2, 3]
+      mixed: [1, 2, 3],
     };
 
     expect(ZON.parse(whitespaceZon)).toEqual(expected);
@@ -254,19 +281,19 @@ describe('parse', () => {
 });
 
 describe('⚡️ parse', () => {
-  it('should serialize 12KB in 0.4ms', () => {
-    const ALLOWED_TIME_MS = 0.4;
+  it('should parse ~10KB under 1ms', () => {
+    const ALLOWED_TIME_MS = 1;
     const iterations = 1000;
 
+    const largeZonString = `.{ ${Array(100).fill(zonString).join(',')} }`;
     const start = performance.now();
     for (let i = 0; i < iterations; i++) {
-      ZON.parse(zonString);
+      ZON.parse(largeZonString);
     }
     const end = performance.now();
 
     const avgTime = (end - start) / iterations;
-    console.log(`Average time per stringify: ${avgTime} milliseconds`);
-    console.log(`Total time for ${iterations} iterations: ${end - start} milliseconds`);
+    // console.log('⏱️ ',`Average: ${avgTime}ms`, `Total: ${end - start}ms`);
     expect(avgTime).toBeLessThan(ALLOWED_TIME_MS);
 
     Bun.write('test/files/simple-parsed.zon', ZON.stringify(ZON.parse(zonString)));
