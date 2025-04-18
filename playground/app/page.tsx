@@ -136,22 +136,29 @@ export default function JsonZonConverter() {
           </div>
         </div>
         <div className="h-full rounded-none md:rounded-lg overflow-hidden border border-gray-700 shadow-lg">
-          <Editor
-            value={jsonValue}
-            onValueChange={handleJsonChange}
-            highlight={(code) => Prism.highlight(code, Prism.languages.json, 'json')}
-            padding={16}
-            style={{
-              fontFamily: '"Fira code", "Fira Mono", monospace',
-              fontSize: 14,
-              marginTop: '38px',
-              height: 'calc(100% - 38px)',
-              backgroundColor: '#1e293b',
-              color: '#e2e8f0',
-              overflow: 'auto',
-            }}
-            className="h-full pt-12"
-          />
+          <div className="h-full overflow-y-auto bg-[#1e293b]">
+            <div className="min-h-full flex flex-col">
+              <Editor
+                value={jsonValue}
+                onValueChange={handleJsonChange}
+                highlight={(code) => Prism.highlight(code, Prism.languages.json, 'json')}
+                padding={16}
+                style={{
+                  fontFamily: '"Fira code", "Fira Mono", monospace',
+                  fontSize: 14,
+                  marginTop: '38px',
+                  backgroundColor: 'transparent',
+                  color: '#e2e8f0',
+                  whiteSpace: 'pre',
+                  caretColor: '#fff',
+                  width: '100%',
+                  flex: '1 1 auto',
+                }}
+                textareaClassName="flex-1"
+                className="h-full pt-12 flex-1"
+              />
+            </div>
+          </div>
         </div>
         {jsonError && (
           <div className="absolute bottom-0 left-0 right-0 p-2 bg-red-900 bg-opacity-90 text-white text-sm font-mono rounded-b-none md:rounded-b-lg mr-0 md:mr-1">
@@ -184,7 +191,12 @@ export default function JsonZonConverter() {
             >
               <GitHubIcon />
             </a>
-            <a href="https://github.com/nurulhudaapon/zzon" target="_blank" rel="noopener noreferrer">
+            <a
+              href="https://github.com/nurulhudaapon/zzon"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:opacity-80 transition-opacity"
+            >
               {isStarsLoading ? (
                 <div className="h-5 w-18 bg-gray-600 animate-pulse rounded" />
               ) : (
@@ -198,22 +210,29 @@ export default function JsonZonConverter() {
           </div>
         </div>
         <div className="h-full rounded-none md:rounded-lg overflow-hidden border border-gray-700 shadow-lg">
-          <Editor
-            value={zonValue}
-            onValueChange={handleZonChange}
-            highlight={(code) => Prism.highlight(code, Prism.languages.zig, 'zig')}
-            padding={16}
-            style={{
-              fontFamily: '"Fira code", "Fira Mono", monospace',
-              fontSize: 14,
-              marginTop: '38px',
-              height: 'calc(100% - 38px)',
-              backgroundColor: '#1e293b',
-              color: '#e2e8f0',
-              overflow: 'auto',
-            }}
-            className="h-full pt-12"
-          />
+          <div className="h-full overflow-y-auto bg-[#1e293b]">
+            <div className="min-h-full flex flex-col">
+              <Editor
+                value={zonValue}
+                onValueChange={handleZonChange}
+                highlight={(code) => Prism.highlight(code, Prism.languages.zig, 'zig')}
+                padding={16}
+                style={{
+                  fontFamily: '"Fira code", "Fira Mono", monospace',
+                  fontSize: 14,
+                  marginTop: '38px',
+                  backgroundColor: 'transparent',
+                  color: '#e2e8f0',
+                  whiteSpace: 'pre',
+                  caretColor: '#fff',
+                  width: '100%',
+                  flex: '1 1 auto',
+                }}
+                textareaClassName="flex-1"
+                className="h-full pt-12 flex-1"
+              />
+            </div>
+          </div>
         </div>
         {zonError && (
           <div className="absolute bottom-0 left-0 right-0 p-2 bg-red-900 bg-opacity-90 text-white text-sm font-mono rounded-b-none md:rounded-b-lg ml-0 md:ml-2">

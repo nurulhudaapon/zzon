@@ -22,8 +22,15 @@
     "test": "bun test",
     "build": "bun run script/build.ts",
     "publish": "bun run build && cd dist && bun publish",
-    "fmt": "prettier --write .",
+    "fmt": "prettier --write . '!test/files/**' '!README.md'",
     "check": "tsc"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "prettier": "^3.5.3"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
   },
   "release": {
     "plugins": [
@@ -39,11 +46,8 @@
       "@semantic-release/github"
     ]
   },
-  "devDependencies": {
-    "@types/bun": "latest",
-    "prettier": "^3.5.3"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
+  "prettier": {
+    "printWidth": 120,
+    "singleQuote": true
   }
 }
