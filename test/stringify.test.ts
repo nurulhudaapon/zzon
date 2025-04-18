@@ -75,19 +75,19 @@ describe('stringify', () => {
 
     it('should handle string space parameter', () => {
       const obj = { a: 1, b: { c: 2 } };
-      expect(ZON.stringify(obj, null, '\t')).toBe(".{\n\t.a = 1,\n\t.b = .{\n\t\t.c = 2},\n}");
+      expect(ZON.stringify(obj, null, '\t')).toBe('.{\n\t.a = 1,\n\t.b = .{\n\t\t.c = 2},\n}');
     });
 
     it('should handle zero space parameter', () => {
       const obj = { a: 1, b: { c: 2 } };
-      expect(ZON.stringify(obj, null, 0)).toBe(".{\n.a=1,\n.b=.{\n.c=2}\n}");
+      expect(ZON.stringify(obj, null, 0)).toBe('.{\n.a=1,\n.b=.{\n.c=2}\n}');
     });
   });
 
   describe('replacer parameter', () => {
     it('should handle array replacer', () => {
       const obj = { a: 1, b: 2, c: 3 };
-      expect(ZON.stringify(obj, ['a', 'c'])).toBe(".{.a=1,.c=3}");
+      expect(ZON.stringify(obj, ['a', 'c'])).toBe('.{.a=1,.c=3}');
     });
 
     it('should handle function replacer', () => {
@@ -98,7 +98,7 @@ describe('stringify', () => {
         }
         return value;
       };
-      expect(ZON.stringify(obj, replacer)).toBe(".{.a=2,.b=4,.c=6}");
+      expect(ZON.stringify(obj, replacer)).toBe('.{.a=2,.b=4,.c=6}');
     });
 
     it('should handle nested objects with replacer', () => {
@@ -107,7 +107,7 @@ describe('stringify', () => {
         if (key === 'c') return undefined;
         return value;
       };
-      expect(ZON.stringify(obj, replacer)).toBe( ".{.a=1,.b=.{.c=undefined,.d=3}}");
+      expect(ZON.stringify(obj, replacer)).toBe('.{.a=1,.b=.{.c=undefined,.d=3}}');
     });
   });
 });

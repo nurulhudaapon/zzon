@@ -15,11 +15,7 @@ export function stringify(
  * @param replacer An array of strings and numbers that acts as an approved list for selecting the object properties that will be stringified.
  * @param space Adds indentation, white space, and line break characters to the return-value ZON text to make it easier to read.
  */
-export function stringify(
-  value: any,
-  replacer?: (number | string)[] | null,
-  space?: string | number,
-): string;
+export function stringify(value: any, replacer?: (number | string)[] | null, space?: string | number): string;
 export function stringify(
   value: any,
   replacer?: ((number | string)[] | null) | ((this: any, key: string, value: any) => any),
@@ -43,11 +39,11 @@ export function stringify(
         if (value === null) {
           return 'null';
         }
-        
+
         const entries = Object.entries(value);
         const isArray = Array.isArray(value);
         let result = '.{';
-        
+
         if (entries.length > 0) {
           result += newline;
         }
@@ -61,26 +57,26 @@ export function stringify(
           if (typeof replacer === 'function') {
             value = replacer.call(value, key, value);
           }
-          
+
           // Skip if replacer is an array and key is not included
           if (Array.isArray(replacer) && !replacer.includes(key)) return;
-          
+
           // Add comma for subsequent entries
           if (validEntries > 0) {
             result += ',';
             result += newline;
           }
-          
+
           // Add indentation
           if (indent) {
             result += indent.repeat(level + 1);
           }
-          
+
           // Add key for non-array objects
           if (!isArray) {
             result += `.${key}${indent ? ' = ' : '='}`;
           }
-          
+
           // Add value
           if (typeof value === 'object' && value !== null) {
             result += stringifyValue(value, level + 1);
@@ -90,7 +86,7 @@ export function stringify(
             result += JSON.stringify(value);
           }
         });
-        
+
         if (validEntries > 0) {
           if (indent) result += ',';
           result += newline;

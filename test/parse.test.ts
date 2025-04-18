@@ -55,7 +55,7 @@ describe('ZON Parser', () => {
       expect(ZON.parse(zonString)).toEqual({
         name: 'test',
         value: 123456,
-        flag: true
+        flag: true,
       });
     });
 
@@ -69,7 +69,7 @@ describe('ZON Parser', () => {
       expect(ZON.parse(zonString)).toEqual({
         a: 1,
         b: 2,
-        c: 3
+        c: 3,
       });
     });
 
@@ -94,10 +94,10 @@ describe('ZON Parser', () => {
         outer: {
           middle: {
             inner: {
-              value: 'deeply nested'
-            }
-          }
-        }
+              value: 'deeply nested',
+            },
+          },
+        },
       });
     });
 
@@ -114,10 +114,7 @@ describe('ZON Parser', () => {
   }
 }`;
       expect(ZON.parse(zonString)).toEqual({
-        array: [
-          { name: 'first' },
-          { name: 'second' }
-        ]
+        array: [{ name: 'first' }, { name: 'second' }],
       });
     });
   });
@@ -133,10 +130,7 @@ describe('ZON Parser', () => {
     .kind = .word
   }
 }`;
-      expect(ZON.parse(zonEnumLiteral)).toEqual([
-        { kind: 'keyword' },
-        { kind: 'word' }
-      ]);
+      expect(ZON.parse(zonEnumLiteral)).toEqual([{ kind: 'keyword' }, { kind: 'word' }]);
     });
 
     it('should ignore comments', () => {
@@ -148,7 +142,7 @@ describe('ZON Parser', () => {
 }`;
       expect(ZON.parse(commentZon)).toEqual({
         name: 'test',
-        value: 123
+        value: 123,
       });
     });
 
@@ -164,7 +158,7 @@ describe('ZON Parser', () => {
       const ALLOWED_TIME_MS = 1;
       const iterations = 1000;
       const largeZonString = `.{ ${Array(100).fill('.{ .name = "test" }').join(',')} }`;
-      
+
       const start = performance.now();
       for (let i = 0; i < iterations; i++) {
         ZON.parse(largeZonString);
