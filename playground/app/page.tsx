@@ -161,7 +161,7 @@ export default function JsonZonConverter() {
           </div>
         </div>
         {jsonError && (
-          <div className="absolute bottom-0 left-0 right-0 p-2 bg-red-900 bg-opacity-90 text-white text-sm font-mono rounded-b-none md:rounded-b-lg mr-0 md:mr-1">
+          <div className="absolute bottom-0 left-0 right-0 p-2 bg-red-900/90 text-white text-sm font-mono rounded-b-none md:rounded-b-lg mr-0 md:mr-1">
             {jsonError}
           </div>
         )}
@@ -235,7 +235,7 @@ export default function JsonZonConverter() {
           </div>
         </div>
         {zonError && (
-          <div className="absolute bottom-0 left-0 right-0 p-2 bg-red-900 bg-opacity-90 text-white text-sm font-mono rounded-b-none md:rounded-b-lg ml-0 md:ml-2">
+          <div className="absolute bottom-0 left-0 right-0 p-2 bg-red-900/90 text-white text-sm font-mono rounded-b-none md:rounded-b-lg ml-0 md:ml-1">
             {zonError}
           </div>
         )}
