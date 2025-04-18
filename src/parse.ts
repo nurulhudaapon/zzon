@@ -246,6 +246,7 @@ class ZonParser {
       );
     }
 
+    if (!reviver) return finalResult;
     return JSON.parse(JSON.stringify(finalResult), reviver);
   }
 }

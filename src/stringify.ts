@@ -6,9 +6,7 @@
  */
 export function stringify(
   value: any,
-  /** @deprecated Support is not yet implemented. */
   replacer?: (this: any, key: string, value: any) => any,
-  /**  @deprecated Full support is not yet implemented. */
   space?: string | number,
 ): string;
 /**
@@ -19,10 +17,7 @@ export function stringify(
  */
 export function stringify(
   value: any,
-  /** @deprecated Support is not yet implemented. */
   replacer?: (number | string)[] | null,
-
-  /**  @deprecated Full support is not yet implemented. */
   space?: string | number,
 ): string;
 export function stringify(
@@ -30,89 +25,95 @@ export function stringify(
   replacer?: ((number | string)[] | null) | ((this: any, key: string, value: any) => any),
   space?: string | number,
 ): string {
-  let zon = new String();
+  let indent = '';
+  let newline = '';
 
-  // Utility functions
-  const addSpace = () => {
-    if (typeof space === 'number') {
-      zon += ' '.repeat(space);
-      zon += '\n';
-    } else if (typeof space === 'string') {
-      zon += space;
-      zon += '\n';
+  // Handle space parameter
+  if (typeof space === 'number') {
+    indent = ' '.repeat(space);
+    newline = '\n';
+  } else if (typeof space === 'string') {
+    indent = space;
+    newline = '\n';
+  }
+
+  const stringifyValue = (value: any, level: number = 0): string => {
+    switch (typeof value) {
+      case 'object':
+        if (value === null) {
+          return 'null';
+        }
+        
+        const entries = Object.entries(value);
+        const isArray = Array.isArray(value);
+        let result = '.{';
+        
+        if (entries.length > 0) {
+          result += newline;
+        }
+
+        let validEntries = -1;
+        entries.forEach(([key, value]) => {
+          if (value === undefined) return;
+          validEntries++;
+
+          // Apply replacer if it's a function
+          if (typeof replacer === 'function') {
+            value = replacer.call(value, key, value);
+          }
+          
+          // Skip if replacer is an array and key is not included
+          if (Array.isArray(replacer) && !replacer.includes(key)) return;
+          
+          // Add comma for subsequent entries
+          if (validEntries > 0) {
+            result += ',';
+            result += newline;
+          }
+          
+          // Add indentation
+          if (indent) {
+            result += indent.repeat(level + 1);
+          }
+          
+          // Add key for non-array objects
+          if (!isArray) {
+            result += `.${key}${indent ? ' = ' : '='}`;
+          }
+          
+          // Add value
+          if (typeof value === 'object' && value !== null) {
+            result += stringifyValue(value, level + 1);
+          } else if (typeof value === 'string' && value.length === 1) {
+            result += `'${value}'`;
+          } else {
+            result += JSON.stringify(value);
+          }
+        });
+        
+        if (validEntries > 0) {
+          if (indent) result += ',';
+          result += newline;
+          if (indent) {
+            result += indent.repeat(level);
+          }
+        }
+
+        result += '}';
+        return result;
+
+      case 'undefined':
+        return '';
+      case 'boolean':
+        return value ? 'true' : 'false';
+      case 'number':
+        return `${value}`;
+      case 'string':
+        return value.length === 1 ? `'${value}'` : `"${value}"`;
+      default:
+        return `${value}`;
     }
   };
 
-  const beginObject = () => {
-    zon = '.{';
-    addSpace();
-  };
-
-  const endObject = () => {
-    zon += '}';
-    addSpace();
-  };
-
-  const addKey = (key: string) => {
-    zon += `.${key}=`;
-    addSpace();
-  };
-
-  const addValue = (value: any) => {
-    if (typeof value === 'object' || value === null || value === undefined) zon += stringify(value);
-    else if (typeof value === 'string' && value.length === 1) zon += `'${value}'`;
-    else zon += `${JSON.stringify(value)}`;
-  };
-
-  const addComma = () => {
-    zon += ',';
-  };
-
-  // Handle primitive values
-  switch (typeof value) {
-    case 'object':
-      if (value === null) {
-        zon += 'null';
-      } else {
-        // Handle objects
-        beginObject();
-        const entries = Object.entries(value);
-        const entriesLength = entries.length;
-        const isArray = Array.isArray(value);
-        let added = 0;
-
-        entries.forEach(([key, value], index) => {
-          const isUndefined = value === undefined;
-
-          const shouldAddKey = !isArray && !isUndefined;
-          const shouldAddValue = !isUndefined;
-          if (shouldAddKey || shouldAddValue) added++;
-          const isStartOfObject = added === 1;
-          const shouldAddComma = !isStartOfObject && (shouldAddValue || shouldAddKey);
-
-          if (shouldAddComma) addComma();
-          if (shouldAddKey) addKey(key);
-          if (shouldAddValue) addValue(value);
-        });
-
-        endObject();
-      }
-      break;
-    case 'undefined':
-      zon += '';
-      break;
-    case 'boolean':
-      zon += value ? 'true' : 'false';
-      break;
-    case 'number':
-      zon += `${value}`;
-      break;
-    case 'string':
-      zon += value.length === 1 ? `'${value}'` : `"${value}"`;
-      break;
-    default:
-      zon += value;
-  }
-
-  return zon.toString();
+  return stringifyValue(value);
 }
