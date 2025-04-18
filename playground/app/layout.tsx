@@ -5,7 +5,7 @@ import { Inter } from "next/font/google"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: "JSON ⟷ ZON Converter",
+  title: "zzon Playground",
   description: "A playground for converting between JSON and ZON formats",
     generator: 'v0.dev'
 }
