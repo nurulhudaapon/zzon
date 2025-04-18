@@ -9,13 +9,16 @@
   <a href="https://github.com/nurulhudaapon/zzon/actions/workflows/release.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/nurulhudaapon/zzon/release.yml?style=flat-square&branch=main" /></a>
 </p>
 
-[Try it in the Playground](https://nurulhudaapon.github.io/zzon/)
 
 A fast, spec-compliant ZON parser and serializer for JavaScript.
 
+
 [ZON](https://github.com/ziglang/zig/pull/20271) is a compact, human-readable, and easy-to-parse data format from the Zig programming language that is similar to JSON in JavaScript.
 
+
 The API is similar to the native [`JSON` API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON).
+
+[Try it in the Playground](https://nurulhudaapon.github.io/zzon/)
 
 ## Installation
 
@@ -50,6 +53,11 @@ import { ZON } from 'zzon';
 const json = ZON.parse(`.{.a=1,.b='a',.c=true,.d=false,.e=null,.g="token"}`);
 console.log(json); // { a: 1,b: "a",c: true, d: false, e: null, g: "token" }
 ```
+
+## [Playground](https://nurulhudaapon.github.io/zzon/)
+
+
+![zzon playground demo](https://raw.githubusercontent.com/nurulhudaapon/zzon/refs/heads/main/asset/playground.gif)
 
 ## License
 
