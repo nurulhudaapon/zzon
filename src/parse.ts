@@ -161,6 +161,7 @@ class ZonParser {
 
     let result: any = undefined;
     let isArray = false;
+    const seenFields = new Set<string>();
 
     if (this.#isTokenTag(this.#currentToken, TokenTag.RBrace)) {
       this.#consume(TokenTag.RBrace);
@@ -193,6 +194,10 @@ class ZonParser {
             if (!fieldName) {
               throw new Error(`Invalid field empty: ${fieldNameToken.value} at index ${fieldNameToken.loc.start}`);
             }
+            if (seenFields.has(fieldName)) {
+              throw new Error(`Duplicate field name '${fieldName}' found at index ${fieldNameToken.loc.start}`);
+            }
+            seenFields.add(fieldName);
             this.#consume(TokenTag.Equal);
             result[fieldName] = this.#parseValue();
             break;

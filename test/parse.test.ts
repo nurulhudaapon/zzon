@@ -74,6 +74,15 @@ describe('ZON Parser', () => {
       });
     });
 
+    it('should throw error for duplicate field names', () => {
+      const zonString = `
+.{
+  .name = "test",
+  .name = "duplicate"
+}`;
+      expect(() => ZON.parse(zonString)).toThrow('Duplicate field name');
+    });
+
     it('should parse objects with trailing commas', () => {
       const zonString = `
 .{
