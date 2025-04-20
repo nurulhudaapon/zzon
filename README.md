@@ -30,7 +30,7 @@ npm install zzon
 
 #### Stringify
 
-```ts
+```ts id="stringify"
 import { ZON } from 'zzon';
 
 const zon = ZON.stringify({
@@ -47,11 +47,11 @@ console.log(zon); // .{.a=1,.b='a',.c=true,.d=false,.e=null,.g="token"}
 
 #### Parse
 
-```ts
+```ts id="parse"
 import { ZON } from 'zzon';
 
 const json = ZON.parse(`.{.a=1,.b='a',.c=true,.d=false,.e=null,.g="token"}`);
-console.log(json); // { a: 1,b: "a",c: true, d: false, e: null, g: "token" }
+console.log(json); // {"a":1,"b":"a","c":true,"d":false,"e":null,"g":"token"}
 ```
 
 ## [Playground](https://nurulhudaapon.github.io/zzon/)
@@ -59,6 +59,19 @@ console.log(json); // { a: 1,b: "a",c: true, d: false, e: null, g: "token" }
 
 ![zzon playground demo](https://raw.githubusercontent.com/nurulhudaapon/zzon/refs/heads/main/asset/playground.gif)
 
+## Benchmarks
+
+Performance comparison between ZON and JSON (10,000 iterations):
+
+| Operation | JSON | ZON | Difference |
+|-----------|------|-----|------------|
+| Parse | 249.59ms | 2477.36ms | 2227.77ms (9.93x slower) |
+| Stringify | 205.68ms | 1003.05ms | 797.37ms (4.88x slower) |
+
+Hardware: Apple M1 Pro  
+Platform: darwin 24.4.0 (arm64)
+
+*Last updated: 2025-04-20T18:39:07.324Z*
 ## License
 
 [MIT](https://github.com/nurulhudaapon/zzon/blob/main/LICENSE)

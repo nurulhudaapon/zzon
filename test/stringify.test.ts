@@ -5,7 +5,7 @@ const equal = (a: any, b: string, msg?: string) => {
   expect(ZON.stringify(a), msg).toBe(b);
 };
 
-describe('stringify', () => {
+describe('ZON Stringify', () => {
   describe('primitives', () => {
     it('should stringify numbers', () => {
       equal(1, '1');
@@ -119,30 +119,32 @@ describe('stringify', () => {
   });
 });
 
-describe('⚡️ stringify performance', () => {
-  it('should serialize ~10KB under 1ms', () => {
-    const ALLOWED_TIME_MS = 1;
-    const iterations = 1000;
-    const complexObject = {
-      a: { b: 1, c: 'a', d: [1, 2, 3], e: { f: true, g: null } },
-      b: [1, 'b', true, { h: 'i' }],
-      c: { j: { k: { l: 'm' } } },
-      d: undefined,
-      e: null,
-      while: true,
-    };
+describe('stringify', () => {
+  it('performance', () => {
+    it('should serialize ~10KB under 1ms', () => {
+      const ALLOWED_TIME_MS = 1;
+      const iterations = 1000;
+      const complexObject = {
+        a: { b: 1, c: 'a', d: [1, 2, 3], e: { f: true, g: null } },
+        b: [1, 'b', true, { h: 'i' }],
+        c: { j: { k: { l: 'm' } } },
+        d: undefined,
+        e: null,
+        while: true,
+      };
 
-    const largeArray = Array(100).fill(complexObject);
-    const start = performance.now();
-    for (let i = 0; i < iterations; i++) {
-      ZON.stringify(largeArray);
-    }
-    const end = performance.now();
+      const largeArray = Array(100).fill(complexObject);
+      const start = performance.now();
+      for (let i = 0; i < iterations; i++) {
+        ZON.stringify(largeArray);
+      }
+      const end = performance.now();
 
-    const avgTime = (end - start) / iterations;
-    expect(avgTime).toBeLessThan(ALLOWED_TIME_MS);
+      const avgTime = (end - start) / iterations;
+      expect(avgTime).toBeLessThan(ALLOWED_TIME_MS);
 
-    Bun.write('test/files/simple.zon', ZON.stringify(complexObject));
-    Bun.write('test/files/simple.json', JSON.stringify(complexObject));
+      Bun.write('test/files/simple.zon', ZON.stringify(complexObject));
+      Bun.write('test/files/simple.json', JSON.stringify(complexObject));
+    });
   });
 });

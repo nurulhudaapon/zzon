@@ -117,7 +117,7 @@ const zonTokens = [
   'Eof',
 ];
 
-describe('Tokenizer', () => {
+describe('Zig Tokenizer', () => {
   it('keyword keys', () => {
     const tokenizer = new Tokenizer(zonStr);
     const tokens = tokenizer.tokens();

@@ -23,7 +23,8 @@
     "build": "bun run script/build.ts",
     "publish": "bun run build && cd dist && bun publish",
     "fmt": "prettier --write . '!test/files/**' '!README.md'",
-    "check": "tsc"
+    "check": "tsc",
+    "bench": "BENCH=true bun test --test-name-pattern 'Performance JSON/ZON' && bun run script/bench.ts"
   },
   "devDependencies": {
     "@types/bun": "latest",
