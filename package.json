@@ -16,7 +16,7 @@
     "parser",
     "serializer"
   ],
-  "author": "Nurul Huda Apon <me@nurulhudaapon.com>",
+  "author": "Nurul Huda (Apon) <me@nurulhudaapon.com>",
   "license": "MIT",
   "scripts": {
     "test": "bun test",

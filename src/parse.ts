@@ -78,13 +78,18 @@ class ZonParser {
         if (nextTokenForPeriod.tag === TokenTag.LBrace) {
           this.#consume(TokenTag.Period);
           return this.#parseStructLiteral();
-        } else if (nextTokenForPeriod.tag === TokenTag.Identifier) {
+        } else if (nextTokenForPeriod.tag === TokenTag.Identifier || nextTokenForPeriod.tag === TokenTag.StringLiteral) {
           this.#consume(TokenTag.Period);
-          const enumValue = this.#consume(TokenTag.Identifier).value;
+          const enumValueToken = this.#consume(nextTokenForPeriod.tag);
+          const enumValue = enumValueToken.tag === TokenTag.StringLiteral
+            ? (enumValueToken.value.startsWith('@"')
+                ? enumValueToken.value.slice(2, -1)
+                : enumValueToken.value.slice(1, -1))
+            : enumValueToken.value;
           return `${enumValue}`;
         } else {
           throw new Error(
-            `Unexpected token after '.': ${nextTokenForPeriod.tag} at index ${nextTokenForPeriod.loc.start}. Expected '{' for struct literal or identifier for enum value.`,
+            `Unexpected token after '.': ${nextTokenForPeriod.tag} at index ${nextTokenForPeriod.loc.start}. Expected '{' for struct literal or identifier/string for enum value.`,
           );
         }
 
@@ -167,7 +172,8 @@ class ZonParser {
         const nextToken = this.#peek();
 
         switch (nextToken.tag) {
-          case TokenTag.Identifier: {
+          case TokenTag.Identifier:
+          case TokenTag.StringLiteral: {
             if (result === undefined) {
               result = {};
               isArray = false;
@@ -178,9 +184,17 @@ class ZonParser {
             }
 
             this.#consume(TokenTag.Period);
-            const fieldNameToken = this.#consume(TokenTag.Identifier);
+            const fieldNameToken = this.#consume(nextToken.tag);
+            const fieldName = fieldNameToken.tag === TokenTag.StringLiteral 
+              ? (fieldNameToken.value.startsWith('@"') 
+                  ? fieldNameToken.value.slice(2, -1) // Remove @" and closing quote
+                  : fieldNameToken.value.slice(1, -1)) // Remove regular quotes
+              : fieldNameToken.value;
+            if (!fieldName) {
+              throw new Error(`Invalid field empty: ${fieldNameToken.value} at index ${fieldNameToken.loc.start}`);
+            }
             this.#consume(TokenTag.Equal);
-            result[fieldNameToken.value] = this.#parseValue();
+            result[fieldName] = this.#parseValue();
             break;
           }
 

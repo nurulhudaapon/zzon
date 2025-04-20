@@ -7,11 +7,27 @@ import 'prismjs/components/prism-zig';
 import 'prismjs/themes/prism-tomorrow.css';
 import { useEffect, useState } from 'react';
 import Editor from 'react-simple-code-editor';
-import { ZON } from 'zzon';
+import { ZON } from '../../src/index';
 
 export default function JsonZonConverter() {
-  const [jsonValue, setJsonValue] = useState<string>(JSON.stringify(examples[0].json, null, 2));
-  const [zonValue, setZonValue] = useState<string>(ZON.stringify(examples[0].json, null, 2));
+  const [jsonValue, setJsonValue] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('jsonValue') || JSON.stringify(examples[0].json, null, 2);
+    }
+    return JSON.stringify(examples[0].json, null, 2);
+  });
+  const [zonValue, setZonValue] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('zonValue') || ZON.stringify(examples[0].json, null, 2);
+    }
+    return ZON.stringify(examples[0].json, null, 2);
+  });
+  const [isUserInput, setIsUserInput] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('isUserInput') === 'true';
+    }
+    return false;
+  });
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [zonError, setZonError] = useState<string | null>(null);
   const [showExamples, setShowExamples] = useState<boolean>(false);
@@ -35,10 +51,14 @@ export default function JsonZonConverter() {
       const zonString = ZON.stringify(jsonObj, null, 2);
       setZonValue(zonString);
       setJsonError(null);
+      if (isUserInput) {
+        localStorage.setItem('jsonValue', jsonValue);
+        localStorage.setItem('zonValue', zonString);
+      }
     } catch (error) {
       setJsonError((error as Error).message);
     }
-  }, [jsonValue, isTypingInJson]);
+  }, [jsonValue, isTypingInJson, isUserInput]);
 
   // Convert ZON to JSON when ZON changes
   useEffect(() => {
@@ -49,21 +69,29 @@ export default function JsonZonConverter() {
       const formattedJson = JSON.stringify(jsonObj, null, 2);
       setJsonValue(formattedJson);
       setZonError(null);
+      if (isUserInput) {
+        localStorage.setItem('jsonValue', formattedJson);
+        localStorage.setItem('zonValue', zonValue);
+      }
     } catch (error) {
       setZonError((error as Error).message);
     }
-  }, [zonValue, isTypingInZon]);
+  }, [zonValue, isTypingInZon, isUserInput]);
 
   const handleJsonChange = (value: string) => {
     setIsTypingInJson(true);
     setIsTypingInZon(false);
     setJsonValue(value);
+    setIsUserInput(true);
+    localStorage.setItem('isUserInput', 'true');
   };
 
   const handleZonChange = (value: string) => {
     setIsTypingInZon(true);
     setIsTypingInJson(false);
     setZonValue(value);
+    setIsUserInput(true);
+    localStorage.setItem('isUserInput', 'true');
   };
 
   const loadExample = (example: (typeof examples)[0]) => {
@@ -73,36 +101,14 @@ export default function JsonZonConverter() {
     setIsTypingInJson(false);
     setIsTypingInZon(false);
     setShowExamples(false);
+    setIsUserInput(false);
+    localStorage.removeItem('jsonValue');
+    localStorage.removeItem('zonValue');
+    localStorage.setItem('isUserInput', 'false');
   };
 
   return (
     <div className="h-screen w-screen flex flex-col md:flex-row p-0 md:p-2 bg-gray-50 dark:bg-gray-900">
-      <style jsx global>{`
-        /* Custom scrollbar styling */
-        ::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-          background: #1a2533;
-        }
-
-        ::-webkit-scrollbar-thumb {
-          background: #4a5568;
-          border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-          background: #718096;
-        }
-
-        /* Hide scrollbar for Firefox */
-        * {
-          scrollbar-width: thin;
-          scrollbar-color: #4a5568 #1a2533;
-        }
-      `}</style>
       {/* JSON Editor */}
       <div className="w-full md:w-1/2 h-1/2 md:h-full relative pr-0 md:pr-1">
         <div className="absolute top-0 left-0 right-0 z-10 flex justify-between items-center px-4 py-2 bg-gray-700 rounded-t-none md:rounded-t-lg mr-0 md:mr-1">
@@ -246,13 +252,33 @@ export default function JsonZonConverter() {
 
 // Example data for the selector
 const examples = [
+
   {
     name: 'Simple Object',
     json: {
-      name: 'Example',
+      name: 'zzon',
       value: 42,
       isActive: true,
       tags: ['json', 'zon', 'converter'],
+    },
+  },
+  {
+    name: 'About zzon',
+    json: {
+      name: 'zzon',
+      description: 'A fast, spec compliant, ZON parser and serializer for JavaScript.',
+      main: 'index.js',
+      type: 'module',
+      homepage: 'https://github.com/nurulhudaapon/zzon',
+      repository: {
+        type: 'git',
+        url: 'https://github.com/nurulhudaapon/zzon.git',
+      },
+      keywords: ['zon', 'zig', 'json', 'parser', 'serializer'],
+      author: 'Nurul Huda (Apon) <me@nurulhudaapon.com>',
+      license: 'MIT',
+      module: 'index.js',
+      types: 'index.d.ts',
     },
   },
   {

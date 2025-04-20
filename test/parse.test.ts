@@ -25,6 +25,21 @@ describe('ZON Parser', () => {
     it('should parse null', () => {
       expect(ZON.parse('null')).toBe(null);
     });
+
+    it('should parse enum value with keyword', () => {
+      expect(ZON.parse('.{ .kind = .@"test" }')).toEqual({ kind: 'test' });
+      expect(ZON.parse('.{ .kind = .@"if" }')).toEqual({ kind: 'if' });
+    });
+
+    it('should parse enum field with keyword', () => {
+      expect(ZON.parse('.{ .@"while" = true }')).toEqual({ while: true });
+      expect(ZON.parse('.{ .@"if" = true }')).toEqual({ if: true });
+    });
+
+    it('should throw error with empty field name', () => {
+      expect(() => ZON.parse('.{ .= true }')).toThrow();
+      expect(() => ZON.parse('.{ .@"" = true }')).toThrow();
+    });
   });
 
   describe('Arrays', () => {
