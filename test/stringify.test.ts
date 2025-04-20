@@ -84,6 +84,13 @@ describe('stringify', () => {
     });
   });
 
+  describe('keyword field names', () => {
+    it('should handle keyword parameter', () => {
+      const obj = { test: 1, b: { c: 2 } };
+      expect(ZON.stringify(obj, null, 0)).toBe('.{\n.@"test"=1,\n.b=.{\n.c=2}\n}');
+    });
+  });
+
   describe('replacer parameter', () => {
     it('should handle array replacer', () => {
       const obj = { a: 1, b: 2, c: 3 };
@@ -122,6 +129,7 @@ describe('⚡️ stringify performance', () => {
       c: { j: { k: { l: 'm' } } },
       d: undefined,
       e: null,
+      while: true,
     };
 
     const largeArray = Array(100).fill(complexObject);

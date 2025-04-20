@@ -1,3 +1,5 @@
+import { KEYWORDS } from "./zig";
+
 /**
  * Converts a Zig value to a Zig Object Notation (ZON) string.
  * @param value A Zig value, usually an object or array, to be converted.
@@ -74,7 +76,8 @@ export function stringify(
 
           // Add key for non-array objects
           if (!isArray) {
-            result += `.${key}${indent ? ' = ' : '='}`;
+            const isKeyword = KEYWORDS.has(key);
+            result += `.${isKeyword ? `@"${key}"` : key}${indent ? ' = ' : '='}`;
           }
 
           // Add value
