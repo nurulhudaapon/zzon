@@ -18,7 +18,7 @@ const platformInfo = `${platform()} ${release()} (${arch()})`;
 // Create the benchmark section
 const benchmarkSection = `## Benchmarks
 
-Performance comparison between ZON and JSON (10,000 iterations):
+Performance comparison between ZON and JSON (source: [test/index.test.ts](test/index.test.ts)):
 
 | Operation | JSON | ZON | Difference |
 |-----------|------|-----|------------|

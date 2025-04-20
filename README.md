@@ -33,16 +33,8 @@ npm install zzon
 ```ts id="stringify"
 import { ZON } from 'zzon';
 
-const zon = ZON.stringify({
-  a: 1,
-  b: 'a',
-  c: true,
-  d: false,
-  e: null,
-  f: undefined,
-  g: 'token',
-});
-console.log(zon); // .{.a=1,.b='a',.c=true,.d=false,.e=null,.g="token"}
+const zon = ZON.stringify({"a":1,"b":"abc","c":true});
+console.log(zon); // .{.a=1,.b="abc",.c=true}
 ```
 
 #### Parse
@@ -50,8 +42,8 @@ console.log(zon); // .{.a=1,.b='a',.c=true,.d=false,.e=null,.g="token"}
 ```ts id="parse"
 import { ZON } from 'zzon';
 
-const json = ZON.parse(`.{.a=1,.b='a',.c=true,.d=false,.e=null,.g="token"}`);
-console.log(json); // {"a":1,"b":"a","c":true,"d":false,"e":null,"g":"token"}
+const json = ZON.parse(`.{.a=1,.b="abc",.c=true}`);
+console.log(json); // {"a":1,"b":"abc","c":true}
 ```
 
 ## [Playground](https://nurulhudaapon.github.io/zzon/)
@@ -61,17 +53,17 @@ console.log(json); // {"a":1,"b":"a","c":true,"d":false,"e":null,"g":"token"}
 
 ## Benchmarks
 
-Performance comparison between ZON and JSON (10,000 iterations):
+Performance comparison between ZON and JSON (benchmark source: [test/index.test.ts](test/index.test.ts)):
 
 | Operation | JSON | ZON | Difference |
 |-----------|------|-----|------------|
-| Parse | 249.59ms | 2477.36ms | 2227.77ms (9.93x slower) |
-| Stringify | 205.68ms | 1003.05ms | 797.37ms (4.88x slower) |
+| Parse | 313.62ms | 2591.57ms | 2277.94ms (8.26x slower) |
+| Stringify | 210.16ms | 1042.47ms | 832.30ms (4.96x slower) |
 
 Hardware: Apple M1 Pro  
 Platform: darwin 24.4.0 (arm64)
 
-*Last updated: 2025-04-20T18:39:07.324Z*
+*Last updated: 2025-04-20T18:58:33.116Z*
 ## License
 
 [MIT](https://github.com/nurulhudaapon/zzon/blob/main/LICENSE)

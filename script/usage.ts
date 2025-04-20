@@ -7,23 +7,20 @@ let readmeContent = await Bun.file(readmePath).text();
 // Example 1: Stringify
 const stringifyExample = {
   a: 1,
-  b: 'a',
+  b: 'abc',
   c: true,
-  d: false,
-  e: null,
-  f: undefined,
-  g: 'token',
 };
+const stringifyInput = JSON.stringify(stringifyExample);
 const stringifyResult = ZON.stringify(stringifyExample);
 
 // Example 2: Parse
-const parseInput = `.{.a=1,.b='a',.c=true,.d=false,.e=null,.g="token"}`;
+const parseInput = stringifyResult;
 const parseResult = ZON.parse(parseInput);
 
 // Update the README with actual results
 readmeContent = readmeContent.replace(
   /```ts id="stringify"\n[\s\S]*?```/,
-  `\`\`\`ts id="stringify"\nimport { ZON } from 'zzon';\n\nconst zon = ZON.stringify({\n  a: 1,\n  b: 'a',\n  c: true,\n  d: false,\n  e: null,\n  f: undefined,\n  g: 'token',\n});\nconsole.log(zon); // ${stringifyResult}\n\`\`\``
+  `\`\`\`ts id="stringify"\nimport { ZON } from 'zzon';\n\nconst zon = ZON.stringify(${stringifyInput});\nconsole.log(zon); // ${stringifyResult}\n\`\`\``
 );
 
 readmeContent = readmeContent.replace(
