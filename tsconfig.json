@@ -24,5 +24,5 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
   },
-  "exclude": ["playground"]
+  "exclude": ["playground", "example"]
 }
