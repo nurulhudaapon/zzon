@@ -1,0 +1,14 @@
+{
+  "name": "zzon-bun",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "zzon": "^1.7.0"
+  }
+}

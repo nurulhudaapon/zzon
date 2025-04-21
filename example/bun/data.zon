@@ -1,0 +1,8 @@
+.{
+    .name = "zzon",
+    .version = "0.1.0",
+    .description = "A macro for zzon",
+    .author = "Nurul Huda (Apon)",
+    .license = "MIT",
+    .dependencies = .{ .zzon = "0.1.0" },
+}

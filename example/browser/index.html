@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZON Example</title>
+  </head>
+  <body>
+    <h1>ZON File Loading Example</h1>
+    <input type="file" id="fileInput" accept=".zon">
+    <pre id="output"></pre>
+    <script type="module">
+      import { ZON } from 'https://cdn.jsdelivr.net/npm/zzon';
+
+        const fileInput = document.getElementById('fileInput');
+        const output = document.getElementById('output');
+
+        fileInput.addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            try {
+                const text = await file.text();
+                const parsed = ZON.parse(text);
+                output.textContent = JSON.stringify(parsed, null, 2);
+            } catch (error) {
+                output.textContent = `Error: ${error.message}`;
+            }
+        });
+    </script>
+  </body>
+</html>

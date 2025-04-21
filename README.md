@@ -64,6 +64,12 @@ Hardware: Apple M1 Pro
 Platform: darwin 24.4.0 (arm64)
 
 *Last updated: 2025-04-21T04:58:48.677Z*
+
+## Example Usage
+
+- [Browser](./example/browser)
+- [Bun](./example/bun)
+
 ## License
 
 [MIT](https://github.com/nurulhudaapon/zzon/blob/main/LICENSE)
