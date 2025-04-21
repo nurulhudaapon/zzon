@@ -6,8 +6,22 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
   title: 'zzon Playground',
-  description: 'A playground for converting between JSON and ZON formats',
-  generator: 'v0.dev',
+  description: 'Online converter for ZON and JSON formats - convert instantly between ZON and JSON. Powered by zzon.',
+  keywords:
+    'zon to json, json to zon, zon converter, json converter, zon format, json format, online converter, free converter, developer tools, data format conversion',
+  authors: [{ name: 'Nurul Huda (Apon)' }],
+  creator: 'Nurul Huda (Apon)', 
+  publisher: 'Nurul Huda (Apon)',
+  openGraph: {
+    title: 'zzon Playground - ZON to JSON Converter',
+    description: 'Online converter for ZON and JSON formats - convert instantly between ZON and JSON.',
+    type: 'website',
+  },
+  // twitter: {
+  //   card: 'summary_large_image',
+  //   title: 'zzon Playground - ZON to JSON Converter', 
+  //   description: 'Online converter for ZON and JSON formats - convert instantly between ZON and JSON.',
+  // },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

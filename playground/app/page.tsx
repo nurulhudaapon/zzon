@@ -10,30 +10,26 @@ import Editor from 'react-simple-code-editor';
 import { ZON } from '../../src/index';
 
 export default function JsonZonConverter() {
-  const [jsonValue, setJsonValue] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('jsonValue') || JSON.stringify(examples[0].json, null, 2);
-    }
-    return JSON.stringify(examples[0].json, null, 2);
-  });
-  const [zonValue, setZonValue] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('zonValue') || ZON.stringify(examples[0].json, null, 2);
-    }
-    return ZON.stringify(examples[0].json, null, 2);
-  });
-  const [isUserInput, setIsUserInput] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('isUserInput') === 'true';
-    }
-    return false;
-  });
+  const [jsonValue, setJsonValue] = useState<string>(JSON.stringify(examples[0].json, null, 2));
+  const [zonValue, setZonValue] = useState<string>(ZON.stringify(examples[0].json, null, 2));
+  const [isUserInput, setIsUserInput] = useState<boolean>(false);
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [zonError, setZonError] = useState<string | null>(null);
   const [showExamples, setShowExamples] = useState<boolean>(false);
   const [isTypingInJson, setIsTypingInJson] = useState<boolean>(false);
   const [isTypingInZon, setIsTypingInZon] = useState<boolean>(false);
   const [isStarsLoading, setIsStarsLoading] = useState<boolean>(true);
+
+  // Initialize state from localStorage on client-side
+  useEffect(() => {
+    const savedJsonValue = localStorage.getItem('jsonValue');
+    const savedZonValue = localStorage.getItem('zonValue');
+    const savedIsUserInput = localStorage.getItem('isUserInput');
+
+    if (savedJsonValue) setJsonValue(savedJsonValue);
+    if (savedZonValue) setZonValue(savedZonValue);
+    if (savedIsUserInput === 'true') setIsUserInput(true);
+  }, []);
 
   // Preload GitHub stars image
   useEffect(() => {
@@ -252,7 +248,6 @@ export default function JsonZonConverter() {
 
 // Example data for the selector
 const examples = [
-
   {
     name: 'Simple Object',
     json: {

@@ -37,19 +37,13 @@ let updatedContent = readmeContent;
 // Check if benchmark section already exists
 if (readmeContent.includes('## Benchmarks')) {
   // Replace existing benchmark section
-  updatedContent = readmeContent.replace(
-    /## Benchmarks[\s\S]*?(?=##|$)/,
-    benchmarkSection
-  );
+  updatedContent = readmeContent.replace(/## Benchmarks[\s\S]*?(?=##|$)/, benchmarkSection);
 } else {
   // Add benchmark section before License section
-  updatedContent = readmeContent.replace(
-    /## License/,
-    `${benchmarkSection}\n\n## License`
-  );
+  updatedContent = readmeContent.replace(/## License/, `${benchmarkSection}\n\n## License`);
 }
 
 // Write the updated content back to README.md
 writeFileSync(readmePath, updatedContent);
 
-console.log('Benchmark section updated in README.md'); 
+console.log('Benchmark section updated in README.md');

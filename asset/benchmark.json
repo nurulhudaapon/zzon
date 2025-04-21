@@ -1,14 +1,14 @@
 {
   "parse": {
-    "jsonTime": "313.62",
-    "zonTime": "2591.57",
-    "diff": "2277.94",
-    "slower": "8.26"
+    "jsonTime": "254.23",
+    "zonTime": "2544.44",
+    "diff": "2290.21",
+    "slower": "10.01"
   },
   "stringify": {
-    "jsonTime": "210.16",
-    "zonTime": "1042.47",
-    "diff": "832.30",
-    "slower": "4.96"
+    "jsonTime": "228.45",
+    "zonTime": "1033.41",
+    "diff": "804.95",
+    "slower": "4.52"
   }
 }

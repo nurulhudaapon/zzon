@@ -20,12 +20,12 @@ const parseResult = ZON.parse(parseInput);
 // Update the README with actual results
 readmeContent = readmeContent.replace(
   /```ts id="stringify"\n[\s\S]*?```/,
-  `\`\`\`ts id="stringify"\nimport { ZON } from 'zzon';\n\nconst zon = ZON.stringify(${stringifyInput});\nconsole.log(zon); // ${stringifyResult}\n\`\`\``
+  `\`\`\`ts id="stringify"\nimport { ZON } from 'zzon';\n\nconst zon = ZON.stringify(${stringifyInput});\nconsole.log(zon); // ${stringifyResult}\n\`\`\``,
 );
 
 readmeContent = readmeContent.replace(
   /```ts id="parse"\n[\s\S]*?```/,
-  `\`\`\`ts id="parse"\nimport { ZON } from 'zzon';\n\nconst json = ZON.parse(\`${parseInput}\`);\nconsole.log(json); // ${JSON.stringify(parseResult)}\n\`\`\``
+  `\`\`\`ts id="parse"\nimport { ZON } from 'zzon';\n\nconst json = ZON.parse(\`${parseInput}\`);\nconsole.log(json); // ${JSON.stringify(parseResult)}\n\`\`\``,
 );
 
 // Write the updated README back to file

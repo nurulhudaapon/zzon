@@ -1,7 +1,7 @@
 # Zig ZON › zzon
 
 <p align="center">
- <img alt="zzon logo" src="https://raw.githubusercontent.com/nurulhudaapon/zzon/refs/heads/main/asset/zzon.png" width="350" />
+ <img alt="zzon logo" src="https://raw.githubusercontent.com/nurulhudaapon/zzon/refs/heads/main/asset/zzon.svg" width="350" />
 </p>
 
 <p align="center">
@@ -18,7 +18,7 @@ A fast, spec-compliant ZON parser and serializer for JavaScript.
 
 The API is similar to the native [`JSON` API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON).
 
-[Try it in the Playground](https://nurulhudaapon.github.io/zzon/)
+[Try it in the Playground](https://zzon.nuhu.dev)
 
 ## Installation
 
@@ -46,24 +46,24 @@ const json = ZON.parse(`.{.a=1,.b="abc",.c=true}`);
 console.log(json); // {"a":1,"b":"abc","c":true}
 ```
 
-## [Playground](https://nurulhudaapon.github.io/zzon/)
+## [Playground](https://zzon.nuhu.dev)
 
 
 ![zzon playground demo](https://raw.githubusercontent.com/nurulhudaapon/zzon/refs/heads/main/asset/playground.gif)
 
 ## Benchmarks
 
-Performance comparison between ZON and JSON (benchmark source: [test/index.test.ts](test/index.test.ts)):
+Performance comparison between ZON and JSON (source: [test/index.test.ts](test/index.test.ts)):
 
 | Operation | JSON | ZON | Difference |
 |-----------|------|-----|------------|
-| Parse | 313.62ms | 2591.57ms | 2277.94ms (8.26x slower) |
-| Stringify | 210.16ms | 1042.47ms | 832.30ms (4.96x slower) |
+| Parse | 254.23ms | 2544.44ms | 2290.21ms (10.01x slower) |
+| Stringify | 228.45ms | 1033.41ms | 804.95ms (4.52x slower) |
 
 Hardware: Apple M1 Pro  
 Platform: darwin 24.4.0 (arm64)
 
-*Last updated: 2025-04-20T18:58:33.116Z*
+*Last updated: 2025-04-21T04:58:48.677Z*
 ## License
 
 [MIT](https://github.com/nurulhudaapon/zzon/blob/main/LICENSE)

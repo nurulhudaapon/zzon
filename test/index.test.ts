@@ -5,7 +5,6 @@ import { describe, it, expect } from 'bun:test';
 const PARSE_ALLOWED_X_SLOWER = +(process.env.PARSE_ALLOWED_X_SLOWER || 15); // ~10x on M1 Pro
 const STRINGIFY_ALLOWED_X_SLOWER = +(process.env.STRINGIFY_ALLOWED_X_SLOWER || 7.5); // ~5x on M1 Pro
 
-
 // ANSI color codes
 const colors = {
   reset: '\x1b[0m',
@@ -51,16 +50,17 @@ describe('Performance JSON/ZON', () => {
       array: [1, 2, 3],
       boolean: true,
       while: false,
-      how: 'if'
+      how: 'if',
     },
   };
 
   const testData = Array(100).fill(testDataObject);
 
-  const iterations = 10000;
+  const iterations = isBench ? 10000 : 1000;
 
   it('should compare parse performance', () => {
     const jsonString = JSON.stringify(testData);
+    let parsedZon = null;
 
     // Time JSON.parse
     const jsonStart = performance.now();
@@ -74,7 +74,7 @@ describe('Performance JSON/ZON', () => {
     const zonString = ZON.stringify(testData);
     const zonStart = performance.now();
     for (let i = 0; i < iterations; i++) {
-      ZON.parse(zonString);
+      parsedZon = ZON.parse(zonString);
     }
     const zonEnd = performance.now();
     const zonTime = zonEnd - zonStart;
@@ -104,10 +104,11 @@ describe('Performance JSON/ZON', () => {
     }
 
     expect(+parseResults.slower).toBeLessThan(PARSE_ALLOWED_X_SLOWER);
+    expect(parsedZon).toEqual(testData);
   });
 
   it('should compare stringify performance', () => {
-
+    let stringifiedZon = null;
     // Time JSON.stringify
     const jsonStart = performance.now();
     for (let i = 0; i < iterations; i++) {
@@ -119,7 +120,7 @@ describe('Performance JSON/ZON', () => {
     // Time ZON.stringify
     const zonStart = performance.now();
     for (let i = 0; i < iterations; i++) {
-      ZON.stringify(testData);
+      stringifiedZon = ZON.stringify(testData);
     }
     const zonEnd = performance.now();
     const zonTime = zonEnd - zonStart;
@@ -154,5 +155,6 @@ describe('Performance JSON/ZON', () => {
     }
 
     expect(+stringifyResults.slower).toBeLessThan(STRINGIFY_ALLOWED_X_SLOWER);
+    expect(ZON.parse(stringifiedZon!)).toEqual(testData);
   });
 });
