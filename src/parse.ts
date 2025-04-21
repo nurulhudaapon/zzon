@@ -78,14 +78,18 @@ class ZonParser {
         if (nextTokenForPeriod.tag === TokenTag.LBrace) {
           this.#consume(TokenTag.Period);
           return this.#parseStructLiteral();
-        } else if (nextTokenForPeriod.tag === TokenTag.Identifier || nextTokenForPeriod.tag === TokenTag.StringLiteral) {
+        } else if (
+          nextTokenForPeriod.tag === TokenTag.Identifier ||
+          nextTokenForPeriod.tag === TokenTag.StringLiteral
+        ) {
           this.#consume(TokenTag.Period);
           const enumValueToken = this.#consume(nextTokenForPeriod.tag);
-          const enumValue = enumValueToken.tag === TokenTag.StringLiteral
-            ? (enumValueToken.value.startsWith('@"')
+          const enumValue =
+            enumValueToken.tag === TokenTag.StringLiteral
+              ? enumValueToken.value.startsWith('@"')
                 ? enumValueToken.value.slice(2, -1)
-                : enumValueToken.value.slice(1, -1))
-            : enumValueToken.value;
+                : enumValueToken.value.slice(1, -1)
+              : enumValueToken.value;
           return `${enumValue}`;
         } else {
           throw new Error(
@@ -186,11 +190,12 @@ class ZonParser {
 
             this.#consume(TokenTag.Period);
             const fieldNameToken = this.#consume(nextToken.tag);
-            const fieldName = fieldNameToken.tag === TokenTag.StringLiteral 
-              ? (fieldNameToken.value.startsWith('@"') 
+            const fieldName =
+              fieldNameToken.tag === TokenTag.StringLiteral
+                ? fieldNameToken.value.startsWith('@"')
                   ? fieldNameToken.value.slice(2, -1) // Remove @" and closing quote
-                  : fieldNameToken.value.slice(1, -1)) // Remove regular quotes
-              : fieldNameToken.value;
+                  : fieldNameToken.value.slice(1, -1) // Remove regular quotes
+                : fieldNameToken.value;
             if (!fieldName) {
               throw new Error(`Invalid field empty: ${fieldNameToken.value} at index ${fieldNameToken.loc.start}`);
             }

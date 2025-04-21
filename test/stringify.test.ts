@@ -89,6 +89,23 @@ describe('ZON Stringify', () => {
       const obj = { test: 1, b: { c: 2 } };
       expect(ZON.stringify(obj, null, 0)).toBe('.{\n.@"test"=1,\n.b=.{\n.c=2}\n}');
     });
+
+    it('should handle invalid identifiers with @""', () => {
+      const obj = {
+        '123': 1,
+        'hello-world': 2,
+        'with spaces': 3,
+        '-start': 4,
+        'middle-hyphen': 5,
+        'end-': 6,
+        'multiple-hyphens-in-key': 7,
+        '--double-hyphen': 8,
+        'hyphen-123': 9,
+      };
+      expect(ZON.stringify(obj, null, 0)).toBe(
+        '.{\n.@"123"=1,\n.@"hello-world"=2,\n.@"with spaces"=3,\n.@"-start"=4,\n.@"middle-hyphen"=5,\n.@"end-"=6,\n.@"multiple-hyphens-in-key"=7,\n.@"--double-hyphen"=8,\n.@"hyphen-123"=9\n}',
+      );
+    });
   });
 
   describe('replacer parameter', () => {

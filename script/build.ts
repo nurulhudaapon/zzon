@@ -17,12 +17,13 @@ async function main() {
   const pkgJsonPath = join(pkgDir, 'package.json');
   const rootPackageJson = JSON.parse(await readFile(rootPackageJsonPath, 'utf-8'));
   const pkgJson = JSON.parse(await readFile(pkgJsonPath, 'utf-8'));
-  const pkgName = `${pkgJson.name}@${pkgJson.version}`;
+  const pkgName = `${pkgJson.name}`;
   mkdirSync(pkgDistDir, { recursive: true });
 
   // Build the package
   console.log(`\x1b[33m📦 ${pkgName} - Bundling...\x1b[0m`);
-  await $`bun build ${pkgDir}/src/index.ts --outdir ${pkgDistDir}`.quiet();
+  await $`rm -rf ${pkgDistDir}`.quiet();
+  await $`bun build ${pkgDir}/src/index.ts --outdir ${pkgDistDir} --minify`.quiet();
 
   // Generate TypeScript declaration files
   console.log(`\x1b[34m🔷 ${pkgName} - Generating types...\x1b[0m`);
@@ -57,6 +58,7 @@ async function main() {
 
     // Use the temporary tsconfig and run tsc directly in the package directory
     await $`cd ${pkgDir} && tsc --project ${tempTsConfigPath}`;
+    await $`rm dist/zig.d.ts`;
 
     // Clean up temporary tsconfig
     await $`rm ${tempTsConfigPath}`;

@@ -1,4 +1,4 @@
-import { KEYWORDS } from "./zig";
+import { KEYWORDS } from './zig';
 
 /**
  * Converts a Zig value to a Zig Object Notation (ZON) string.
@@ -77,7 +77,8 @@ export function stringify(
           // Add key for non-array objects
           if (!isArray) {
             const isKeyword = KEYWORDS.has(key);
-            result += `.${isKeyword ? `@"${key}"` : key}${indent ? ' = ' : '='}`;
+            const isInvalidZigIdentifier = !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(key);
+            result += `.${isKeyword ? `@"${key}"` : isInvalidZigIdentifier ? `@"${key}"` : key}${indent ? ' = ' : '='}`;
           }
 
           // Add value
