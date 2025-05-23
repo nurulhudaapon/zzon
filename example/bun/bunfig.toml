@@ -1,1 +1,1 @@
-preload = ["./zon.loader.ts"]
+preload = ["bun-plugin-zon"]
