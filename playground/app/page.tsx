@@ -108,10 +108,10 @@ export default function JsonZonConverter() {
       {/* JSON Editor */}
       <div className="w-full md:w-1/2 h-1/2 md:h-full relative pr-0 md:pr-1">
         <div className="absolute top-0 left-0 right-0 z-10 flex justify-between items-center px-4 py-2 bg-gray-700 rounded-t-none md:rounded-t-lg mr-0 md:mr-1">
-          <div className="text-white font-semibold flex items-center gap-2">
+          <label htmlFor='json-editor' className="text-white font-semibold flex items-center gap-2">
             <JSONIcon />
             JSON
-          </div>
+          </label>
           <div className="relative">
             <button
               onClick={() => setShowExamples(!showExamples)}
@@ -145,6 +145,7 @@ export default function JsonZonConverter() {
                 onValueChange={handleJsonChange}
                 highlight={(code) => Prism.highlight(code, Prism.languages.json, 'json')}
                 padding={16}
+                textareaId='json-editor'
                 style={{
                   fontFamily: '"Fira code", "Fira Mono", monospace',
                   fontSize: 14,
@@ -172,10 +173,10 @@ export default function JsonZonConverter() {
       {/* ZON Editor */}
       <div className="w-full md:w-1/2 h-1/2 md:h-full relative pl-0 md:pl-1">
         <div className="absolute top-0 left-0 right-0 z-10 flex justify-between items-center px-4 py-2 bg-gray-700 rounded-t-none md:rounded-t-lg ml-0 md:ml-1">
-          <div className="text-white font-semibold flex items-center gap-2">
+          <label htmlFor='zon-editor' className="text-white font-semibold flex items-center gap-2">
             <ZonLogo />
             ZON
-          </div>
+          </label>
           <div className="flex items-center gap-2">
             <a
               href="https://www.npmjs.com/package/zzon"
@@ -219,6 +220,7 @@ export default function JsonZonConverter() {
                 onValueChange={handleZonChange}
                 highlight={(code) => Prism.highlight(code, Prism.languages.zig, 'zig')}
                 padding={16}
+                textareaId='zon-editor'
                 style={{
                   fontFamily: '"Fira code", "Fira Mono", monospace',
                   fontSize: 14,
