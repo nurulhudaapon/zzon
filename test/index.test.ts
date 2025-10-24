@@ -79,20 +79,31 @@ describe('Performance JSON/ZON', () => {
     const zonEnd = performance.now();
     const zonTime = zonEnd - zonStart;
 
+    // Calculate throughput in KB/s
+    const jsonSizeKB = new TextEncoder().encode(jsonString).length / 1024;
+    const zonSizeKB = new TextEncoder().encode(zonString).length / 1024;
+    const totalJsonDataKB = jsonSizeKB * iterations;
+    const totalZonDataKB = zonSizeKB * iterations;
+    
+    const jsonThroughput = totalJsonDataKB / (jsonTime / 1000); // KB/s
+    const zonThroughput = totalZonDataKB / (zonTime / 1000); // KB/s
+
     const parseResults = {
       jsonTime: jsonTime.toFixed(2),
       zonTime: zonTime.toFixed(2),
       diff: (zonTime - jsonTime).toFixed(2),
       slower: (zonTime / jsonTime).toFixed(2),
+      jsonThroughput: jsonThroughput.toFixed(2),
+      zonThroughput: zonThroughput.toFixed(2),
     };
 
     if (isBench) {
       console.log(`\n${colors.bright}${colors.cyan}Parse Performance Comparison:${colors.reset}`);
       console.log(`${colors.dim}---------------------------${colors.reset}`);
       console.log(
-        `${colors.green}JSON.parse:${colors.reset} ${colors.yellow}${parseResults.jsonTime}ms${colors.reset}`,
+        `${colors.green}JSON.parse:${colors.reset} ${colors.yellow}${parseResults.jsonTime}ms${colors.reset} (${colors.cyan}${parseResults.jsonThroughput} KB/s${colors.reset})`,
       );
-      console.log(`${colors.blue}ZON.parse:${colors.reset}  ${colors.yellow}${parseResults.zonTime}ms${colors.reset}`);
+      console.log(`${colors.blue}ZON.parse:${colors.reset}  ${colors.yellow}${parseResults.zonTime}ms${colors.reset} (${colors.cyan}${parseResults.zonThroughput} KB/s${colors.reset})`);
       console.log(
         `${colors.magenta}Difference:${colors.reset} ${colors.yellow}${parseResults.diff}ms${colors.reset} (${colors.red}${parseResults.slower}x slower${colors.reset})`,
       );
@@ -109,10 +120,11 @@ describe('Performance JSON/ZON', () => {
 
   it('should compare stringify performance', () => {
     let stringifiedZon = null;
+    let stringifiedJson = null;
     // Time JSON.stringify
     const jsonStart = performance.now();
     for (let i = 0; i < iterations; i++) {
-      JSON.stringify(testData);
+      stringifiedJson = JSON.stringify(testData);
     }
     const jsonEnd = performance.now();
     const jsonTime = jsonEnd - jsonStart;
@@ -125,21 +137,32 @@ describe('Performance JSON/ZON', () => {
     const zonEnd = performance.now();
     const zonTime = zonEnd - zonStart;
 
+    // Calculate throughput in KB/s
+    const jsonSizeKB = new TextEncoder().encode(stringifiedJson!).length / 1024;
+    const zonSizeKB = new TextEncoder().encode(stringifiedZon!).length / 1024;
+    const totalJsonDataKB = jsonSizeKB * iterations;
+    const totalZonDataKB = zonSizeKB * iterations;
+    
+    const jsonThroughput = totalJsonDataKB / (jsonTime / 1000); // KB/s
+    const zonThroughput = totalZonDataKB / (zonTime / 1000); // KB/s
+
     const stringifyResults = {
       jsonTime: jsonTime.toFixed(2),
       zonTime: zonTime.toFixed(2),
       diff: (zonTime - jsonTime).toFixed(2),
       slower: (zonTime / jsonTime).toFixed(2),
+      jsonThroughput: jsonThroughput.toFixed(2),
+      zonThroughput: zonThroughput.toFixed(2),
     };
 
     if (isBench) {
       console.log(`\n${colors.bright}${colors.cyan}Stringify Performance Comparison:${colors.reset}`);
       console.log(`${colors.dim}------------------------------${colors.reset}`);
       console.log(
-        `${colors.green}JSON.stringify:${colors.reset} ${colors.yellow}${stringifyResults.jsonTime}ms${colors.reset}`,
+        `${colors.green}JSON.stringify:${colors.reset} ${colors.yellow}${stringifyResults.jsonTime}ms${colors.reset} (${colors.cyan}${stringifyResults.jsonThroughput} KB/s${colors.reset})`,
       );
       console.log(
-        `${colors.blue}ZON.stringify:${colors.reset}  ${colors.yellow}${stringifyResults.zonTime}ms${colors.reset}`,
+        `${colors.blue}ZON.stringify:${colors.reset}  ${colors.yellow}${stringifyResults.zonTime}ms${colors.reset} (${colors.cyan}${stringifyResults.zonThroughput} KB/s${colors.reset})`,
       );
       console.log(
         `${colors.magenta}Difference:${colors.reset} ${colors.yellow}${stringifyResults.diff}ms${colors.reset} (${colors.red}${stringifyResults.slower}x slower${colors.reset})`,

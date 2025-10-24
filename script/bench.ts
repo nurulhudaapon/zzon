@@ -15,6 +15,10 @@ const results = JSON.parse(readFileSync(resultsPath, 'utf-8'));
 const cpuModel = cpus()[0].model;
 const platformInfo = `${platform()} ${release()} (${arch()})`;
 
+function fmtThroughput(throughput: number) {
+  return `${(throughput / 1024).toFixed(2)} MB/s`;
+}
+
 // Create the benchmark section
 const benchmarkSection = `## Benchmarks
 
@@ -22,8 +26,8 @@ Performance comparison between ZON and JSON (source: [test/index.test.ts](test/i
 
 | Operation | JSON | ZON | Difference |
 |-----------|------|-----|------------|
-| Parse | ${results.parse.jsonTime}ms | ${results.parse.zonTime}ms | ${results.parse.diff}ms (${results.parse.slower}x slower) |
-| Stringify | ${results.stringify.jsonTime}ms | ${results.stringify.zonTime}ms | ${results.stringify.diff}ms (${results.stringify.slower}x slower) |
+| Parse | ${fmtThroughput(results.parse.jsonThroughput)} | ${fmtThroughput(results.parse.zonThroughput)} | ${results.parse.slower}x slower |
+| Stringify | ${fmtThroughput(results.stringify.jsonThroughput)} | ${fmtThroughput(results.stringify.zonThroughput)} | ${results.stringify.slower}x slower |
 
 Hardware: ${cpuModel}  
 Platform: ${platformInfo}

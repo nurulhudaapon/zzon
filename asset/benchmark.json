@@ -1,14 +1,18 @@
 {
   "parse": {
-    "jsonTime": "254.23",
-    "zonTime": "2544.44",
-    "diff": "2290.21",
-    "slower": "10.01"
+    "jsonTime": "223.61",
+    "zonTime": "2467.62",
+    "diff": "2244.02",
+    "slower": "11.04",
+    "jsonThroughput": "441144.26",
+    "zonThroughput": "39582.96"
   },
   "stringify": {
-    "jsonTime": "228.45",
-    "zonTime": "1033.41",
-    "diff": "804.95",
-    "slower": "4.52"
+    "jsonTime": "211.75",
+    "zonTime": "1090.95",
+    "diff": "879.20",
+    "slower": "5.15",
+    "jsonThroughput": "465854.61",
+    "zonThroughput": "89532.75"
   }
 }

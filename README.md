@@ -57,14 +57,13 @@ Performance comparison between ZON and JSON (source: [test/index.test.ts](test/i
 
 | Operation | JSON | ZON | Difference |
 |-----------|------|-----|------------|
-| Parse | 254.23ms | 2544.44ms | 2290.21ms (10.01x slower) |
-| Stringify | 228.45ms | 1033.41ms | 804.95ms (4.52x slower) |
+| Parse | 430.80 MB/s | 38.66 MB/s | 11.04x slower |
+| Stringify | 454.94 MB/s | 87.43 MB/s | 5.15x slower |
 
 Hardware: Apple M1 Pro  
-Platform: darwin 24.4.0 (arm64)
+Platform: darwin 25.0.0 (arm64)
 
-*Last updated: 2025-04-21T04:58:48.677Z*
-
+*Last updated: 2025-10-24T03:55:48.380Z*
 ## Example Usage
 
 - [Browser](./example/browser)

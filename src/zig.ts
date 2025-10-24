@@ -84,8 +84,6 @@ export const TokenTag = {
   KeywordAnyframe: 'KeywordAnyframe',
   KeywordAnytype: 'KeywordAnytype',
   KeywordAsm: 'KeywordAsm',
-  KeywordAsync: 'KeywordAsync',
-  KeywordAwait: 'KeywordAwait',
   KeywordBreak: 'KeywordBreak',
   KeywordCallconv: 'KeywordCallconv',
   KeywordCatch: 'KeywordCatch',
@@ -159,8 +157,6 @@ export const KEYWORDS = new Map<string, TokenTag>([
   ['anyframe', TokenTag.KeywordAnyframe],
   ['anytype', TokenTag.KeywordAnytype],
   ['asm', TokenTag.KeywordAsm],
-  ['async', TokenTag.KeywordAsync],
-  ['await', TokenTag.KeywordAwait],
   ['break', TokenTag.KeywordBreak],
   ['callconv', TokenTag.KeywordCallconv],
   ['catch', TokenTag.KeywordCatch],
@@ -365,10 +361,6 @@ export function getTokenTagLexeme(tag: TokenTag): string | null {
       return 'anytype';
     case TokenTag.KeywordAsm:
       return 'asm';
-    case TokenTag.KeywordAsync:
-      return 'async';
-    case TokenTag.KeywordAwait:
-      return 'await';
     case TokenTag.KeywordBreak:
       return 'break';
     case TokenTag.KeywordCallconv:
