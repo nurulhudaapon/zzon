@@ -5,24 +5,23 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "serve": "bunx serve out"
   },
   "dependencies": {
-    "lucide-react": "^0.501.0",
-    "next": "15.3.1",
+    "lucide-react": "^0.546.0",
+    "next": "16.0.0",
     "prismjs": "^1.30.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "react-simple-code-editor": "^0.14.1"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.4",
-    "@types/node": "^22.14.1",
+    "@tailwindcss/postcss": "^4.1.16",
+    "@types/node": "^24.9.1",
     "@types/prismjs": "^1.26.5",
-    "@types/react": "^19.1.2",
-    "@types/react-dom": "^19.1.2",
-    "tailwindcss": "^4.1.4",
-    "typescript": "^5.8.3"
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "tailwindcss": "^4.1.16",
+    "typescript": "^5.9.3"
   }
 }
